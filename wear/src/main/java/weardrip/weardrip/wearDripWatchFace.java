@@ -6,20 +6,26 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.format.Time;
+
+import com.eveningoutpost.dexdrip.Models.BgReading;
+
 import java.lang.String;
+import java.text.DecimalFormat;
 
 public class wearDripWatchFace {
 
     private static final String TIME_FORMAT_WITHOUT_SECONDS = "%02d.%02d";
     private static final String TIME_FORMAT_WITH_SECONDS = TIME_FORMAT_WITHOUT_SECONDS + ".%02d";
-    private static final String DATE_FORMAT = "%02d.%02d.%d";
+
     private static final int DATE_AND_TIME_DEFAULT_COLOUR = Color.WHITE;
     private static final int BACKGROUND_DEFAULT_COLOUR = Color.BLACK;
 
+    String Text;
+
     private final Paint timePaint;
-    private final Paint datePaint;
     private final Paint backgroundPaint;
     private final Time time;
+    private final Paint TextPaint;
 
     private boolean shouldShowSeconds = true;
     private int backgroundColour = BACKGROUND_DEFAULT_COLOUR;
@@ -31,38 +37,51 @@ public class wearDripWatchFace {
         timePaint.setTextSize(context.getResources().getDimension(R.dimen.time_size));
         timePaint.setAntiAlias(true);
 
-        Paint datePaint = new Paint();
-        datePaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        datePaint.setTextSize(context.getResources().getDimension(R.dimen.date_size));
-        datePaint.setAntiAlias(true);
+        Paint TextPaint = new Paint();
+        TextPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
+        TextPaint.setTextSize(context.getResources().getDimension(R.dimen.text_size));
+        TextPaint.setAntiAlias(true);
 
         Paint backgroundPaint = new Paint();
         backgroundPaint.setColor(BACKGROUND_DEFAULT_COLOUR);
 
-        return new wearDripWatchFace(timePaint, datePaint, backgroundPaint, new Time());
+        return new wearDripWatchFace(timePaint, backgroundPaint, TextPaint, new Time());
     }
 
-    wearDripWatchFace(Paint timePaint, Paint datePaint, Paint backgroundPaint, Time time) {
+    wearDripWatchFace(Paint timePaint, Paint backgroundPaint, Paint TextPaint, Time time) {
         this.timePaint = timePaint;
-        this.datePaint = datePaint;
+        this.TextPaint = TextPaint;
         this.backgroundPaint = backgroundPaint;
         this.time = time;
 
     }
 
+    public void showBG() {
+        BgReading mBgReading;
+        mBgReading = BgReading.last();
+        if(mBgReading != null) {
+            double calculated_value = mBgReading.calculated_value;
+            DecimalFormat df = new DecimalFormat("#.#");
+            Text = String.valueOf(df.format(calculated_value));
+        } else {
+            Text = "Null";
+        }
+    }
+
     public void draw(Canvas canvas, Rect bounds) {
         time.setToNow();
+        showBG();
         canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
+
+        float TextXOffset = computeXOffset(Text, TextPaint, bounds);
+        float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
+        canvas.drawText(Text, TextXOffset, TextYOffset, TextPaint);
 
         String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
         float timeXOffset = computeXOffset(timeText, timePaint, bounds);
-        float timeYOffset = computeTimeYOffset(timeText, timePaint, bounds);
-        canvas.drawText(timeText, timeXOffset, timeYOffset, timePaint);
+        float timeYOffset = computeTimeYOffset(timeText, timePaint);
+        canvas.drawText(timeText, timeXOffset, timeYOffset + TextYOffset, timePaint);
 
-        String dateText = String.format(DATE_FORMAT, time.monthDay, (time.month + 1), time.year);
-        float dateXOffset = computeXOffset(dateText, datePaint, bounds);
-        float dateYOffset = computeDateYOffset(dateText, datePaint);
-        canvas.drawText(dateText, dateXOffset, timeYOffset + dateYOffset, datePaint);
     }
 
     private float computeXOffset(String text, Paint paint, Rect watchBounds) {
@@ -71,29 +90,28 @@ public class wearDripWatchFace {
         return centerX - (timeLength / 2.0f);
     }
 
-    private float computeTimeYOffset(String timeText, Paint timePaint, Rect watchBounds) {
+    private float computeTextYOffset(String Text, Paint TextPaint, Rect watchBounds) {
         float centerY = watchBounds.exactCenterY();
         Rect textBounds = new Rect();
-        timePaint.getTextBounds(timeText, 0, timeText.length(), textBounds);
+        timePaint.getTextBounds(Text, 0, Text.length(), textBounds);
         int textHeight = textBounds.height();
         return centerY + (textHeight / 2.0f);
     }
 
-    private float computeDateYOffset(String dateText, Paint datePaint) {
+    private float computeTimeYOffset(String timeText, Paint timePaint) {
         Rect textBounds = new Rect();
-        datePaint.getTextBounds(dateText, 0, dateText.length(), textBounds);
+        TextPaint.getTextBounds(timeText, 0, timeText.length(), textBounds);
         return textBounds.height() + 10.0f;
     }
 
     public void setAntiAlias(boolean antiAlias) {
         timePaint.setAntiAlias(antiAlias);
-        datePaint.setAntiAlias(antiAlias);
+        TextPaint.setAntiAlias(antiAlias);
     }
 
     public void updateDateAndTimeColourTo(int colour) {
         dateAndTimeColour = colour;
         timePaint.setColor(colour);
-        datePaint.setColor(colour);
     }
 
     public void updateTimeZoneWith(String timeZone) {
@@ -121,11 +139,11 @@ public class wearDripWatchFace {
 
     public void updateDateAndTimeColourToDefault() {
         timePaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        datePaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
+        TextPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
     }
 
     public void restoreDateAndTimeColour() {
         timePaint.setColor(dateAndTimeColour);
-        datePaint.setColor(dateAndTimeColour);
+        TextPaint.setColor(dateAndTimeColour);
     }
 }

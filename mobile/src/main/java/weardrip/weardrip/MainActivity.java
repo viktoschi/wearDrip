@@ -1,10 +1,13 @@
 package weardrip.weardrip;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.NotificationCompat;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -274,6 +277,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         timePickerDialog.show(getSupportFragmentManager(), "timepicker");
         datePickerDialog.setYearRange(2016, 2028);
         datePickerDialog.show(getSupportFragmentManager(), "datepicker");
+
+        /*
+        Notification notification = new NotificationCompat.Builder(getApplication())
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
+                .setContentTitle("Hello World")
+                .setContentText("My first Android Wear notification")
+                .extend(
+                        new NotificationCompat.WearableExtender().setHintShowBackgroundOnly(false))
+                .build();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplication());
+        int notificationId = 1;
+        notificationManager.notify(notificationId, notification);
+        */
     }
     public void sensorstoponClick(){
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_stopsensor").setUrgent();

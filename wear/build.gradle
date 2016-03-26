@@ -26,5 +26,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.github.lecho:hellocharts-library:1.5.8@aar'
+    compile 'com.ustwo.android:clockwise-wearable:1.0.2'
     compile project(':ActiveAndroid')
 }

@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
+import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -23,7 +24,6 @@ import android.view.SurfaceHolder;
 import com.activeandroid.query.Select;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.SyncingService;
 import com.eveningoutpost.dexdrip.Models.ActiveBluetoothDevice;
-import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.Models.Calibration;
 import com.eveningoutpost.dexdrip.Models.Sensor;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
@@ -90,6 +90,7 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
 
         private void startTimerIfNecessary() {
             timeTick.removeCallbacks(timeRunnable);
+
             if (isVisible() && !isInAmbientMode()) {
                 timeTick.post(timeRunnable);
             }
@@ -111,6 +112,7 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void invalidateIfNecessary() {
+
             if (isVisible() && !isInAmbientMode()) {
                 invalidate();
             }
@@ -119,17 +121,21 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
+
             if (visible) {
                 registerTimeZoneReceiver();
                 googleApiClient.connect();
+                registeronChargeReceiver();
             } else {
                 unregisterTimeZoneReceiver();
                 releaseGoogleApiClient();
+                unregisteronChargeReceiver();
             }
             startTimerIfNecessary();
         }
 
         private void releaseGoogleApiClient() {
+
             if (googleApiClient != null && googleApiClient.isConnected()) {
                 Wearable.DataApi.removeListener(googleApiClient, onDataChangedListener);
                 googleApiClient.disconnect();
@@ -148,8 +154,32 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
         private BroadcastReceiver timeZoneChangedReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 if (Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
                     watchFace.updateTimeZoneWith(intent.getStringExtra(ACTION_TIME_ZONE));
+                }
+
+            }
+        };
+
+        private void unregisteronChargeReceiver() {
+            unregisterReceiver(onCharger);
+        }
+
+        private void registeronChargeReceiver() {
+            IntentFilter onCharge = new IntentFilter(Intent.ACTION_POWER_CONNECTED);
+            registerReceiver(onCharger, onCharge);
+        }
+
+        private BroadcastReceiver onCharger = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())){
+                    Log.d("watch ", "on charger");
+                    Intent startIntent = new Intent(context, MainActivity.class);
+                    startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(startIntent);
                 }
             }
         };
@@ -175,9 +205,12 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             if (inAmbientMode) {
                 watchFace.updateBackgroundColourToDefault();
                 watchFace.updateDateAndTimeColourToDefault();
+                watchFace.showBG();
+                //onCharger(wearDripWatchFaceService.this, );
             } else {
                 watchFace.restoreBackgroundColour();
                 watchFace.restoreDateAndTimeColour();
+                watchFace.showBG();
             }
             invalidate();
             startTimerIfNecessary();
@@ -317,7 +350,12 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
                     double calValue = Double.parseDouble(dataMap.getString("calibration", ""));
                     Calibration.create(calValue, getApplicationContext());
                     Log.d("NEW CALIBRATION", "Calibration value: " + calValue);
-                    callibrationCheckin();
+                    if (Sensor.isActive()) {
+                        SyncingService.startActionCalibrationCheckin(getApplicationContext());
+                        Log.d("CALIBRATION", "Checked in all calibrations");
+                    } else {
+                        Log.d("CALIBRATION", "ERROR, sensor not active");
+                    }
                 }
             }
 
@@ -329,17 +367,7 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
                     Calibration.initialCalibration(calValue1, calValue2, getApplicationContext());
                     Log.d("NEW CALIBRATION", "Calibration value_1: " + calValue1);
                     Log.d("NEW CALIBRATION", "Calibration value_2: " + calValue2);
-                    callibrationCheckin();
                 }
-            }
-        }
-
-        private void callibrationCheckin() {
-            if (Sensor.isActive()) {
-                SyncingService.startActionCalibrationCheckin(getApplicationContext());
-                Log.d("CALIBRATION", "Checked in all calibrations");
-            } else {
-                Log.d("CALIBRATION", "ERROR, sensor not active");
             }
         }
 
@@ -372,18 +400,33 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
         }
 
         @Override
-        public void onTapCommand(int tapType, int x, int y, long eventTime) {
-            showBG();
+        public void onTapCommand(
+                @TapType int tapType, int x, int y, long eventTime) {
+            switch (tapType) {
+                case WatchFaceService.TAP_TYPE_TAP:
+                    break;
+                case WatchFaceService.TAP_TYPE_TOUCH:
+                    changeBackground();
+                    invalidate();
+                    break;
+                case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
+                    break;
+                default:
+                    super.onTapCommand(tapType, x, y, eventTime);
+                    break;
+            }
         }
 
-        public void showBG() {
-            BgReading mBgReading;
-            mBgReading = BgReading.last();
-
-            if(mBgReading != null) {
-                Log.e(TAG, "tap event calculated value: " + mBgReading.calculated_value);
-            } else {
-                Log.e(TAG, "tap event mBgReading is null");
+        private void changeBackground() {
+            int mTapCount=0;
+            mTapCount++;
+            switch(mTapCount % 2) {
+                case 0:
+                    watchFace.updateBackgroundColourToDefault();
+                    break;
+                case 1:
+                    watchFace.updateBackgroundColourTo(-16777216);
+                    break;
             }
         }
     }
