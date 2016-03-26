@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:inputType="textCapCharacters"
+        android:key="txid"
+        android:summary="Please provide your Transmitter ID"
+        android:title="Transmitter ID" />
+    <EditTextPreference
+        android:defaultValue="00:00:00:00:00:00"
+        android:inputType="textCapCharacters"
+        android:key="getAddress"
+        android:summary="Please enter Bluetooth Mac Address of Collection Device:"
+        android:title="Collection Device MAC Address" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/CollectionMethodArray"
+        android:entryValues="@array/CollectionMethodValues"
+        android:key="CollectionMethod"
+        android:summary="Select your Collection Device"
+        android:title="Collection Method" />
+
+</PreferenceScreen>

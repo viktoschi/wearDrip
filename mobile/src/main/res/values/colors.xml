@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="datepicker_primary">#f48fb1</color>
+    <color name="datepicker_primary_dark">#f06292</color>
+    <color name="primary_dark">#f06292</color>
+    <color name="primary">#f48fb1</color>
+    <color name="accent">#F06292</color>
+
+</resources>

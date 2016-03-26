@@ -1,0 +1,12 @@
+<resources>
+
+    <string-array name="CollectionMethodArray">
+        <item>xDrip</item>
+        <item>xBridge</item>
+    </string-array>
+    <string-array name="CollectionMethodValues">
+        <item>BluetoothWixel</item>
+        <item>DexbridgeWixel</item>
+    </string-array>
+
+</resources>
