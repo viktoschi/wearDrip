@@ -2,12 +2,16 @@ package weardrip.weardrip;
 
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -22,7 +26,6 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.util.ArrayList;
 
 public class wearBIGChart extends CanvasWatchFaceService {
-    public View layoutView;
 
     @Override
     public Engine onCreateEngine() {
@@ -34,6 +37,14 @@ public class wearBIGChart extends CanvasWatchFaceService {
 
         private View myLayout;
         private final Point displaySize = new Point();
+
+
+        float mXOffset = 0;
+        float mYOffset = 0;
+
+        private int specW, specH;
+
+
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -81,8 +92,6 @@ public class wearBIGChart extends CanvasWatchFaceService {
             lineChart.setData(data);
 
 
-
-
             //dataset.setColors(ColorTemplate.COLORFUL_COLORS);
             //dataset.setColors(ColorTemplate.VORDIPLOM_COLORS);
             //dataset.setColors(ColorTemplate.JOYFUL_COLORS);
@@ -107,6 +116,43 @@ public class wearBIGChart extends CanvasWatchFaceService {
 
             YAxis rightAxis = lineChart.getAxisRight();
             rightAxis.setEnabled(false);
+
         }
+
+        @Override
+        public void onApplyWindowInsets(WindowInsets insets) {
+            super.onApplyWindowInsets(insets);
+
+            if (insets.isRound()) {
+                // Shrink the face to fit on a round screen
+                mYOffset = mXOffset = displaySize.x * 0.1f;
+                displaySize.y -= 2 * mXOffset;
+                displaySize.x -= 2 * mXOffset;
+            } else {
+                mXOffset = mYOffset = 0;
+            }
+
+            // Recompute the MeasureSpec fields - these determine the actual size of the layout
+            specW = View.MeasureSpec.makeMeasureSpec(displaySize.x, View.MeasureSpec.EXACTLY);
+            specH = View.MeasureSpec.makeMeasureSpec(displaySize.y, View.MeasureSpec.EXACTLY);
+        }
+
+
+        @Override
+        public void onDraw(Canvas canvas, Rect bounds) {
+
+
+
+            // Update the layout
+            myLayout.measure(specW, specH);
+            myLayout.layout(0, 0, myLayout.getMeasuredWidth(), myLayout.getMeasuredHeight());
+
+            // Draw it to the Canvas
+            canvas.drawColor(Color.BLACK);
+            canvas.translate(mXOffset, mYOffset);
+            myLayout.draw(canvas);
+        }
+
     }
+
 }
