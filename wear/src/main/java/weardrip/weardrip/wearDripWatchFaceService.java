@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -158,7 +157,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
                 if (Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
                     watchFace.updateTimeZoneWith(intent.getStringExtra(ACTION_TIME_ZONE));
                 }
-
             }
         };
 
@@ -177,10 +175,24 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
 
                 if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())){
                     Log.d("watch ", "on charger");
-                    Intent startIntent = new Intent(context, MainActivity.class);
-                    startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(startIntent);
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run(){
+                            Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
+                            startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            wearDripWatchFaceService.this.startActivity(startIntent);
+                        }
+                    };
+                    Handler h = new Handler();
+                    h.postDelayed(r, 1000);
                 }
+
+               if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
+                    Log.d("watch ", "not on charger");
+                    //Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
+                    //intent.putExtra("stop", true);
+                    //startActivity(startIntent);
+               }
             }
         };
 
@@ -206,7 +218,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
                 watchFace.updateBackgroundColourToDefault();
                 watchFace.updateDateAndTimeColourToDefault();
                 watchFace.showBG();
-                //onCharger(wearDripWatchFaceService.this, );
             } else {
                 watchFace.restoreBackgroundColour();
                 watchFace.restoreDateAndTimeColour();
@@ -407,7 +418,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
                     changeBackground();
-                    invalidate();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
@@ -417,15 +427,17 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             }
         }
 
+        int mTapCount=0;
         private void changeBackground() {
-            int mTapCount=0;
             mTapCount++;
             switch(mTapCount % 2) {
                 case 0:
-                    watchFace.updateBackgroundColourToDefault();
+                    watchFace.wfChangeCase0();
+                    invalidate();
                     break;
                 case 1:
-                    watchFace.updateBackgroundColourTo(-16777216);
+                    watchFace.wfChangeCase1();
+                    invalidate();
                     break;
             }
         }

@@ -21,6 +21,7 @@ public class wearDripWatchFace {
     private static final int BACKGROUND_DEFAULT_COLOUR = Color.BLACK;
 
     String Text;
+    Boolean wfChange = true;
 
     private final Paint timePaint;
     private final Paint backgroundPaint;
@@ -53,7 +54,6 @@ public class wearDripWatchFace {
         this.TextPaint = TextPaint;
         this.backgroundPaint = backgroundPaint;
         this.time = time;
-
     }
 
     public void showBG() {
@@ -68,20 +68,35 @@ public class wearDripWatchFace {
         }
     }
 
+    public void wfChangeCase0(){wfChange = true;}
+    public void wfChangeCase1(){wfChange = false;}
+
     public void draw(Canvas canvas, Rect bounds) {
         time.setToNow();
         showBG();
-        canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
+        if (wfChange == true){
+            canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
+            float TextXOffset = computeXOffset(Text, TextPaint, bounds);
+            float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
+            canvas.drawText(Text, TextXOffset, TextYOffset, TextPaint);
 
-        float TextXOffset = computeXOffset(Text, TextPaint, bounds);
-        float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
-        canvas.drawText(Text, TextXOffset, TextYOffset, TextPaint);
+            String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
+            float timeXOffset = computeXOffset(timeText, timePaint, bounds);
+            float timeYOffset = computeTimeYOffset(timeText, timePaint);
+            canvas.drawText(timeText, timeXOffset, timeYOffset + TextYOffset, timePaint);
+        }
 
-        String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
-        float timeXOffset = computeXOffset(timeText, timePaint, bounds);
-        float timeYOffset = computeTimeYOffset(timeText, timePaint);
-        canvas.drawText(timeText, timeXOffset, timeYOffset + TextYOffset, timePaint);
+        else if (wfChange == false){
+            canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
+            String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
+            float timeXOffset = computeXOffset(timeText, timePaint, bounds);
+            float timeYOffset = computeTimeYOffset(timeText, timePaint);
+            canvas.drawText(timeText, timeXOffset, timeYOffset, timePaint);
 
+            float TextXOffset = computeXOffset(Text, TextPaint, bounds);
+            float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
+            canvas.drawText(Text, TextXOffset, TextYOffset + timeYOffset, TextPaint);
+        }
     }
 
     private float computeXOffset(String text, Paint paint, Rect watchBounds) {

@@ -10,5 +10,9 @@ public class MainActivity extends WearableActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Bundle extras = this.getIntent().getExtras();
+        if (extras != null && extras.getBoolean("stop", true)) {
+            this.finish();
+        }
     }
 }
