@@ -6,16 +6,23 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.format.Time;
+import android.util.Log;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import java.lang.String;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class wearDripWatchFace {
 
-    private static final String TIME_FORMAT_WITHOUT_SECONDS = "%02d.%02d";
-    private static final String TIME_FORMAT_WITH_SECONDS = TIME_FORMAT_WITHOUT_SECONDS + ".%02d";
+    private static final String TIME_FORMAT_WITHOUT_SECONDS = "%02d:%02d";
+    private static final String TIME_FORMAT_WITH_SECONDS = TIME_FORMAT_WITHOUT_SECONDS + ":%02d";
 
     private static final int DATE_AND_TIME_DEFAULT_COLOUR = Color.WHITE;
     private static final int BACKGROUND_DEFAULT_COLOUR = Color.BLACK;
@@ -25,12 +32,17 @@ public class wearDripWatchFace {
 
     private final Paint timePaint;
     private final Paint backgroundPaint;
+    private final Paint chartbackgroundPaint;
     private final Time time;
     private final Paint TextPaint;
+    private final Paint chartPaint;
 
     private boolean shouldShowSeconds = true;
     private int backgroundColour = BACKGROUND_DEFAULT_COLOUR;
     private int dateAndTimeColour = DATE_AND_TIME_DEFAULT_COLOUR;
+
+
+
 
     public static wearDripWatchFace newInstance(Context context) {
         Paint timePaint = new Paint();
@@ -43,18 +55,44 @@ public class wearDripWatchFace {
         TextPaint.setTextSize(context.getResources().getDimension(R.dimen.text_size));
         TextPaint.setAntiAlias(true);
 
+        Paint chartPaint = new Paint();
+        chartPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
+        chartPaint.setTextSize(context.getResources().getDimension(R.dimen.text_size));
+        chartPaint.setAntiAlias(true);
+
         Paint backgroundPaint = new Paint();
         backgroundPaint.setColor(BACKGROUND_DEFAULT_COLOUR);
 
-        return new wearDripWatchFace(timePaint, backgroundPaint, TextPaint, new Time());
+        Paint chartbackgroundPaint = new Paint();
+        chartbackgroundPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
+
+
+        return new wearDripWatchFace(
+                timePaint,
+                backgroundPaint,
+                TextPaint,
+                chartPaint,
+                chartbackgroundPaint,
+                new Time());
     }
 
-    wearDripWatchFace(Paint timePaint, Paint backgroundPaint, Paint TextPaint, Time time) {
+
+
+    wearDripWatchFace(Paint timePaint,
+                      Paint backgroundPaint,
+                      Paint TextPaint,
+                      Paint chartPaint,
+                      Paint chartbackgroundPaint,
+                      Time time) {
         this.timePaint = timePaint;
         this.TextPaint = TextPaint;
+        this.chartPaint = chartPaint;
         this.backgroundPaint = backgroundPaint;
+        this.chartbackgroundPaint = chartbackgroundPaint;
         this.time = time;
+
     }
+
 
     public void showBG() {
         BgReading mBgReading;
@@ -75,7 +113,10 @@ public class wearDripWatchFace {
         time.setToNow();
         showBG();
         if (wfChange == true){
+
             canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
+            canvas.drawRect(20, 20, 200, 175, chartbackgroundPaint);
+
             float TextXOffset = computeXOffset(Text, TextPaint, bounds);
             float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
             canvas.drawText(Text, TextXOffset, TextYOffset, TextPaint);
@@ -84,6 +125,8 @@ public class wearDripWatchFace {
             float timeXOffset = computeXOffset(timeText, timePaint, bounds);
             float timeYOffset = computeTimeYOffset(timeText, timePaint);
             canvas.drawText(timeText, timeXOffset, timeYOffset + TextYOffset, timePaint);
+
+
         }
 
         else if (wfChange == false){

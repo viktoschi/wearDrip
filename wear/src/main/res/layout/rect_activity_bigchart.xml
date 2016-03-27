@@ -47,13 +47,13 @@
                 android:gravity="center_horizontal" />
 
         </LinearLayout>
-
-         <lecho.lib.hellocharts.view.LineChartView
+        <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/chart"
             android:layout_width="match_parent"
             android:layout_height="77dp"
             android:layout_gravity="bottom"
             android:gravity="center_horizontal|top" />
+
 
         <LinearLayout
             android:orientation="horizontal"

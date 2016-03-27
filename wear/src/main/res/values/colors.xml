@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="percentile_outer">#005882</color>
-    <color name="percentile_inner">#2d95c2</color>
-    <color name="percentile_median">#bce6ff</color>
-    <color name="background">#000000</color>
-    <color name="background2">#000088</color>
+    <color name="digital_background">#000000</color>
     <color name="digital_text">#ffffff</color>
+    <color name="datepicker_primary">#f48fb1</color>
+    <color name="datepicker_primary_dark">#f06292</color>
+    <color name="primary_dark">#f06292</color>
+    <color name="primary">#f48fb1</color>
+    <color name="accent">#F06292</color>
+        <color name="percentile_outer">#005882</color>
+        <color name="percentile_inner">#2d95c2</color>
+        <color name="percentile_median">#bce6ff</color>
+        <color name="background">#000000</color>
+        <color name="background2">#000088</color>
 </resources>

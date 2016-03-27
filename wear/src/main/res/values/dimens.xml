@@ -3,7 +3,7 @@
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="time_size">20dp</dimen>
-    <dimen name="text_size">50dp</dimen>
+    <dimen name="text_size">70dp</dimen>
 
 
 
