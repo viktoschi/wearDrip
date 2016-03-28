@@ -51,7 +51,7 @@
             android:exported="true" >
         </service>
 
-        <receiver android:name="weardrip.weardrip.AutoStart">
+        <receiver android:name="com.eveningoutpost.dexdrip.AutoStart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
