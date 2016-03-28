@@ -44,26 +44,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".wearLayoutWF"
-            android:label="@string/wf1"
-            android:permission="android.permission.BIND_WALLPAPER" >
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_digital" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_digital_circular" />
-
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" />
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
-            </intent-filter>
-        </service>
-
 
         <service
             android:name="com.eveningoutpost.dexdrip.Services.DexCollectionService"
@@ -78,7 +58,7 @@
         </receiver>
 
         <service
-            android:name="weardrip.weardrip.wearDripWatchFaceService"
+            android:name="weardrip.weardrip.wearDripWatchFace"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_WALLPAPER">
             <meta-data

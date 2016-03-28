@@ -1,207 +1,346 @@
 package weardrip.weardrip;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.wearable.watchface.CanvasWatchFaceService;
+import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
-import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
-import java.lang.String;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-public class wearDripWatchFace {
-
-    private static final String TIME_FORMAT_WITHOUT_SECONDS = "%02d:%02d";
-    private static final String TIME_FORMAT_WITH_SECONDS = TIME_FORMAT_WITHOUT_SECONDS + ":%02d";
-
-    private static final int DATE_AND_TIME_DEFAULT_COLOUR = Color.WHITE;
-    private static final int BACKGROUND_DEFAULT_COLOUR = Color.BLACK;
-
-    String Text;
-    Boolean wfChange = true;
-
-    private final Paint timePaint;
-    private final Paint backgroundPaint;
-    private final Paint chartbackgroundPaint;
-    private final Time time;
-    private final Paint TextPaint;
-    private final Paint chartPaint;
-
-    private boolean shouldShowSeconds = true;
-    private int backgroundColour = BACKGROUND_DEFAULT_COLOUR;
-    private int dateAndTimeColour = DATE_AND_TIME_DEFAULT_COLOUR;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 
 
+public class wearDripWatchFace extends CanvasWatchFaceService {
+    private static final Typeface NORMAL_TYPEFACE =
+            Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
-    public static wearDripWatchFace newInstance(Context context) {
-        Paint timePaint = new Paint();
-        timePaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        timePaint.setTextSize(context.getResources().getDimension(R.dimen.time_size));
-        timePaint.setAntiAlias(true);
+    /**
+     * Update rate in milliseconds for interactive mode. We update once a second since seconds are
+     * displayed in interactive mode.
+     */
+    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
-        Paint TextPaint = new Paint();
-        TextPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        TextPaint.setTextSize(context.getResources().getDimension(R.dimen.text_size));
-        TextPaint.setAntiAlias(true);
-
-        Paint chartPaint = new Paint();
-        chartPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        chartPaint.setTextSize(context.getResources().getDimension(R.dimen.text_size));
-        chartPaint.setAntiAlias(true);
-
-        Paint backgroundPaint = new Paint();
-        backgroundPaint.setColor(BACKGROUND_DEFAULT_COLOUR);
-
-        Paint chartbackgroundPaint = new Paint();
-        chartbackgroundPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-
-
-        return new wearDripWatchFace(
-                timePaint,
-                backgroundPaint,
-                TextPaint,
-                chartPaint,
-                chartbackgroundPaint,
-                new Time());
+    @Override
+    public Engine onCreateEngine() {
+        return new Engine();
     }
 
+    private class Engine extends CanvasWatchFaceService.Engine {
+        static final int MSG_UPDATE_TIME = 0;
+
+        /**
+         * Handler to update the time periodically in interactive mode.
+         */
+        final Handler mUpdateTimeHandler = new Handler() {
+            @Override
+            public void handleMessage(Message message) {
+                switch (message.what) {
+                    case MSG_UPDATE_TIME:
+                        invalidate();
+                        if (shouldTimerBeRunning()) {
+                            long timeMs = System.currentTimeMillis();
+                            long delayMs = INTERACTIVE_UPDATE_RATE_MS
+                                    - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
+                            mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
+                        }
+                        break;
+                }
+            }
+        };
+
+        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mTime.clear(intent.getStringExtra("time-zone"));
+                mTime.setToNow();
+            }
+        };
+
+        boolean mRegisteredTimeZoneReceiver = false;
+
+        boolean mAmbient;
+
+        Time mTime;
+
+        float mXOffset = 0;
+        float mYOffset = 0;
+
+        private int specW, specH;
+        private View myLayout;
+        private TextView day, month, hour, minute, second, sgv, delta, watch_time, timestamp;
+        private final Point displaySize = new Point();
+
+        /**
+         * Whether the display supports fewer bits for each color in ambient mode. When true, we
+         * disable anti-aliasing in ambient mode.
+         */
+        boolean mLowBitAmbient;
+
+        @Override
+        public void onCreate(SurfaceHolder holder) {
+            super.onCreate(holder);
+
+            setWatchFaceStyle(new WatchFaceStyle.Builder(wearDripWatchFace.this)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
+                    .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+                    .setShowSystemUiTime(false)
+                    .build());
+            Resources resources = wearDripWatchFace.this.getResources();
+
+            mTime = new Time();
+
+            // Inflate the layout that we're using for the watch face
+            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            myLayout = inflater.inflate(R.layout.wear_drip_watchface_layout, null);
+
+            // Load the display spec - we'll need this later for measuring myLayout
+            Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
+                    .getDefaultDisplay();
+            display.getSize(displaySize);
+
+            // Find some views for later use
+            sgv = (TextView) myLayout.findViewById(R.id.sgv);
+            delta = (TextView) myLayout.findViewById(R.id.delta);
+            timestamp = (TextView) myLayout.findViewById(R.id.timestamp);
+            watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
 
 
-    wearDripWatchFace(Paint timePaint,
-                      Paint backgroundPaint,
-                      Paint TextPaint,
-                      Paint chartPaint,
-                      Paint chartbackgroundPaint,
-                      Time time) {
-        this.timePaint = timePaint;
-        this.TextPaint = TextPaint;
-        this.chartPaint = chartPaint;
-        this.backgroundPaint = backgroundPaint;
-        this.chartbackgroundPaint = chartbackgroundPaint;
-        this.time = time;
+            LineChart lineChart = (LineChart) myLayout.findViewById(R.id.chart);
+            lineChart.setDescription("");
+            lineChart.setNoDataTextDescription("You need to provide data for the chart.");
 
-    }
+            ArrayList<Entry> entries = new ArrayList<>();
+            entries.add(new Entry(4f, 0));
+            entries.add(new Entry(8f, 1));
+            entries.add(new Entry(6f, 2));
+            entries.add(new Entry(2f, 3));
+            entries.add(new Entry(18f, 4));
+            entries.add(new Entry(9f, 5));
 
+            LineDataSet dataset = new LineDataSet(entries, "# of Calls");
 
-    public void showBG() {
-        BgReading mBgReading;
-        mBgReading = BgReading.last();
-        if(mBgReading != null) {
-            double calculated_value = mBgReading.calculated_value;
-            DecimalFormat df = new DecimalFormat("#.#");
-            Text = String.valueOf(df.format(calculated_value));
-        } else {
-            Text = "Null";
+            ArrayList<String> labels = new ArrayList<String>();
+            labels.add("January");
+            labels.add("February");
+            labels.add("March");
+            labels.add("April");
+            labels.add("May");
+            labels.add("June");
+
+            LineData data = new LineData(labels, dataset);
+            //dataset.setColors(ColorTemplate.COLORFUL_COLORS);
+            //dataset.setColors(ColorTemplate.VORDIPLOM_COLORS);
+            //dataset.setColors(ColorTemplate.JOYFUL_COLORS);
+            dataset.setColors(ColorTemplate.LIBERTY_COLORS);
+            //dataset.setColors(ColorTemplate.PASTEL_COLORS);
+            dataset.setDrawCubic(true);
+            dataset.setDrawFilled(true);
+            dataset.setDrawCircles(false);
+            dataset.setDrawValues(false);
+
+            lineChart.setPinchZoom(false);
+            lineChart.setDragEnabled(false);
+            lineChart.setScaleEnabled(false);
+            lineChart.setDrawGridBackground(false);
+            lineChart.setTouchEnabled(false);
+            lineChart.setData(data);
+            lineChart.animateY(5000);
+
+            // get the legend (only possible after setting data)
+            Legend l = lineChart.getLegend();
+            l.setEnabled(false);
+
+            XAxis xl = lineChart.getXAxis();
+            xl.setDrawGridLines(true);
+            xl.setEnabled(false);
+
+            YAxis leftAxis = lineChart.getAxisLeft();
+            leftAxis.setDrawGridLines(false);
+
+            YAxis rightAxis = lineChart.getAxisRight();
+            rightAxis.setEnabled(false);
+
         }
-    }
 
-    public void wfChangeCase0(){wfChange = true;}
-    public void wfChangeCase1(){wfChange = false;}
-
-    public void draw(Canvas canvas, Rect bounds) {
-        time.setToNow();
-        showBG();
-        if (wfChange == true){
-
-            canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
-            canvas.drawRect(20, 20, 200, 175, chartbackgroundPaint);
-
-            float TextXOffset = computeXOffset(Text, TextPaint, bounds);
-            float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
-            canvas.drawText(Text, TextXOffset, TextYOffset, TextPaint);
-
-            String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
-            float timeXOffset = computeXOffset(timeText, timePaint, bounds);
-            float timeYOffset = computeTimeYOffset(timeText, timePaint);
-            canvas.drawText(timeText, timeXOffset, timeYOffset + TextYOffset, timePaint);
-
-
+        @Override
+        public void onDestroy() {
+            mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
+            super.onDestroy();
         }
 
-        else if (wfChange == false){
-            canvas.drawRect(0, 0, bounds.width(), bounds.height(), backgroundPaint);
-            String timeText = String.format(shouldShowSeconds ? TIME_FORMAT_WITH_SECONDS : TIME_FORMAT_WITHOUT_SECONDS, time.hour, time.minute, time.second);
-            float timeXOffset = computeXOffset(timeText, timePaint, bounds);
-            float timeYOffset = computeTimeYOffset(timeText, timePaint);
-            canvas.drawText(timeText, timeXOffset, timeYOffset, timePaint);
+        @Override
+        public void onVisibilityChanged(boolean visible) {
+            super.onVisibilityChanged(visible);
 
-            float TextXOffset = computeXOffset(Text, TextPaint, bounds);
-            float TextYOffset = computeTextYOffset(Text, TextPaint, bounds);
-            canvas.drawText(Text, TextXOffset, TextYOffset + timeYOffset, TextPaint);
+            if (visible) {
+                registerReceiver();
+
+                // Update time zone in case it changed while we weren't visible.
+                mTime.clear(TimeZone.getDefault().getID());
+                mTime.setToNow();
+            } else {
+                unregisterReceiver();
+            }
+
+            // Whether the timer should be running depends on whether we're visible (as well as
+            // whether we're in ambient mode), so we may need to start or stop the timer.
+            updateTimer();
         }
-    }
 
-    private float computeXOffset(String text, Paint paint, Rect watchBounds) {
-        float centerX = watchBounds.exactCenterX();
-        float timeLength = paint.measureText(text);
-        return centerX - (timeLength / 2.0f);
-    }
+        private void registerReceiver() {
+            if (mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = true;
+            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+            wearDripWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+        }
 
-    private float computeTextYOffset(String Text, Paint TextPaint, Rect watchBounds) {
-        float centerY = watchBounds.exactCenterY();
-        Rect textBounds = new Rect();
-        timePaint.getTextBounds(Text, 0, Text.length(), textBounds);
-        int textHeight = textBounds.height();
-        return centerY + (textHeight / 2.0f);
-    }
+        private void unregisterReceiver() {
+            if (!mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = false;
+            wearDripWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+        }
 
-    private float computeTimeYOffset(String timeText, Paint timePaint) {
-        Rect textBounds = new Rect();
-        TextPaint.getTextBounds(timeText, 0, timeText.length(), textBounds);
-        return textBounds.height() + 10.0f;
-    }
+        @Override
+        public void onApplyWindowInsets(WindowInsets insets) {
+            super.onApplyWindowInsets(insets);
 
-    public void setAntiAlias(boolean antiAlias) {
-        timePaint.setAntiAlias(antiAlias);
-        TextPaint.setAntiAlias(antiAlias);
-    }
+            if (insets.isRound()) {
+                mXOffset = mYOffset = 0;
+            } else {
+                mXOffset = mYOffset = 0;
+            }
 
-    public void updateDateAndTimeColourTo(int colour) {
-        dateAndTimeColour = colour;
-        timePaint.setColor(colour);
-    }
+            // Recompute the MeasureSpec fields - these determine the actual size of the layout
+            specW = View.MeasureSpec.makeMeasureSpec(displaySize.x, View.MeasureSpec.EXACTLY);
+            specH = View.MeasureSpec.makeMeasureSpec(displaySize.y, View.MeasureSpec.EXACTLY);
+        }
 
-    public void updateTimeZoneWith(String timeZone) {
-        time.clear(timeZone);
-        time.setToNow();
-    }
+        @Override
+        public void onPropertiesChanged(Bundle properties) {
+            super.onPropertiesChanged(properties);
+            mLowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false);
+        }
+
+        @Override
+        public void onTimeTick() {
+            super.onTimeTick();
+            invalidate();
+        }
+
+        @Override
+        public void onAmbientModeChanged(boolean inAmbientMode) {
+            super.onAmbientModeChanged(inAmbientMode);
+            if (mAmbient != inAmbientMode) {
+                mAmbient = inAmbientMode;
+
+                // Show/hide the seconds fields
+                if (inAmbientMode) {
+                    //second.setVisibility(View.GONE);
+                    //myLayout.findViewById(R.id.chart).setVisibility(View.GONE);
+                } else {
+                    //second.setVisibility(View.VISIBLE);
+                    //myLayout.findViewById(R.id.chart).setVisibility(View.VISIBLE);
+                }
+
+                invalidate();
+            }
+
+            // Whether the timer should be running depends on whether we're visible (as well as
+            // whether we're in ambient mode), so we may need to start or stop the timer.
+            updateTimer();
+        }
+
+        String bgvalue;
+        public void showBG() {
+            BgReading mBgReading;
+            mBgReading = BgReading.last();
+            if(mBgReading != null) {
+                double calculated_value = mBgReading.calculated_value;
+                DecimalFormat df = new DecimalFormat("#.");
+                bgvalue = String.valueOf(df.format(calculated_value));
+            } else {
+                bgvalue = "n/a";
+            }
+        }
 
 
-    public void setShowSeconds(boolean showSeconds) {
-        shouldShowSeconds = showSeconds;
-    }
+        @Override
+        public void onDraw(Canvas canvas, Rect bounds) {
+            // Get the current Time
+            mTime.setToNow();
+            showBG();
+            delta.setText("mg/dl");
+            sgv.setText(bgvalue);
+            watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
+            timestamp.setText("--'");
 
-    public void updateBackgroundColourTo(int colour) {
-        backgroundColour = colour;
-        backgroundPaint.setColor(colour);
-    }
+            if (!mAmbient) {
+                //second.setText(String.format("%02d", mTime.second));
+            }
 
-    public void restoreBackgroundColour() {
-        backgroundPaint.setColor(backgroundColour);
-    }
+            // Update the layout
+            myLayout.measure(specW, specH);
+            myLayout.layout(0, 0, myLayout.getMeasuredWidth(), myLayout.getMeasuredHeight());
 
-    public void updateBackgroundColourToDefault() {
-        backgroundPaint.setColor(BACKGROUND_DEFAULT_COLOUR);
-    }
+            // Draw it to the Canvas
+            canvas.drawColor(Color.BLACK);
+            canvas.translate(mXOffset, mYOffset);
+            myLayout.draw(canvas);
+        }
 
-    public void updateDateAndTimeColourToDefault() {
-        timePaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-        TextPaint.setColor(DATE_AND_TIME_DEFAULT_COLOUR);
-    }
+        /**
+         * Starts the {@link #mUpdateTimeHandler} timer if it should be running and isn't currently
+         * or stops it if it shouldn't be running but currently is.
+         */
+        private void updateTimer() {
+            mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
+            if (shouldTimerBeRunning()) {
+                mUpdateTimeHandler.sendEmptyMessage(MSG_UPDATE_TIME);
+            }
+        }
 
-    public void restoreDateAndTimeColour() {
-        timePaint.setColor(dateAndTimeColour);
-        TextPaint.setColor(dateAndTimeColour);
+        /**
+         * Returns whether the {@link #mUpdateTimeHandler} timer should be running. The timer should
+         * only run when we're visible and in interactive mode.
+         */
+        private boolean shouldTimerBeRunning() {
+            return isVisible() && !isInAmbientMode();
+        }
     }
 }

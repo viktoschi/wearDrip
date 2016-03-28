@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    tools:context="app.num.linechart.wearLayoutWF">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom|center">
+
+            <Space
+                android:layout_width="50dp"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:text="---"
+                android:id="@+id/delta"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:textAllCaps="true"
+                android:layout_row="0"
+                android:layout_column="0" />
+
+            <Space
+                android:layout_width="30px"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="90dp"
+
+                android:layout_height="match_parent"
+                android:text="---"
+                android:id="@+id/sgv"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:layout_row="0"
+                android:layout_column="1" />
+
+            <Space
+                android:layout_width="30px"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="220dp"
+            android:layout_height="85dp"
+            android:layout_gravity="center">
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_row="0"
+                android:layout_column="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_gravity="top|center">
+
+            <Space
+                android:layout_width="30dp"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="match_parent"
+                android:text="12:00"
+                android:id="@+id/watch_time"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:textAllCaps="true"
+                android:layout_row="1"
+                android:layout_column="0" />
+
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:text="-- '"
+                android:id="@+id/timestamp"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:layout_row="1"
+                android:layout_column="1" />
+
+            <Space
+                android:layout_width="20px"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>
