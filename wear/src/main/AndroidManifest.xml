@@ -47,11 +47,11 @@
 
         <service
             android:name="com.eveningoutpost.dexdrip.Services.DexCollectionService"
-            android:enabled="true"
+            android:enabled="false"
             android:exported="true" >
         </service>
 
-        <receiver android:name="com.eveningoutpost.dexdrip.AutoStart" >
+        <receiver android:name="weardrip.weardrip.AutoStart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

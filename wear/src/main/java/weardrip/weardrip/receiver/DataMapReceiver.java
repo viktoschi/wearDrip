@@ -1,8 +1,10 @@
-package weardrip.weardrip.reciever;
+package weardrip.weardrip.receiver;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,14 +34,19 @@ import java.util.Calendar;
 import weardrip.weardrip.MainActivity;
 
 
-public class DataMapReciever extends MainActivity implements
+public class DataMapReceiver implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient googleApiClient;
 
-    private static final String TAG = "SimpleEngine";
+    private static final String TAG = "DataMapReceiver";
+    private Context mContext;
 
+
+    public DataMapReceiver(Context context) {
+        mContext = context;
+    }
 
    // @Override
     public void onCreate() {
@@ -50,7 +57,7 @@ public class DataMapReciever extends MainActivity implements
 
         //watchFace = wearDripWatchFace.newInstance(wearDripWatchFaceService.this);
 
-        googleApiClient = new GoogleApiClient.Builder(DataMapReciever.this)
+        googleApiClient = new GoogleApiClient.Builder(mContext)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -93,7 +100,7 @@ public class DataMapReciever extends MainActivity implements
     private void processConfigurationFor(DataItem item) {
         if ("/wearable_prefernces".equals(item.getUri().getPath())) {
             DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
             prefs.edit().putString("dex_txid", dataMap.getString("txid")).apply();
             prefs.edit().putString("getAddress", dataMap.getString("getAddress")).apply();
             prefs.edit().putString("getName", dataMap.getString("getName")).apply();
@@ -149,7 +156,7 @@ public class DataMapReciever extends MainActivity implements
             if (dataMap.containsKey("StopCollectionService")) {
                 Log.d("ActiveBluetoothDevice ", "forget");
                 BluetoothManager mBluetoothManager;
-                mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                mBluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
                 final BluetoothAdapter bluetoothAdapter = mBluetoothManager.getAdapter();
                 ActiveBluetoothDevice.forget();
                 bluetoothAdapter.disable();
@@ -160,7 +167,7 @@ public class DataMapReciever extends MainActivity implements
                         bluetoothAdapter.enable();
                         mHandler2.postDelayed(new Runnable() {
                             public void run() {
-                                CollectionServiceStarter.restartCollectionService(getApplicationContext());
+                                CollectionServiceStarter.restartCollectionService(mContext);
                             }
                         }, 5000);
                     }
@@ -171,7 +178,7 @@ public class DataMapReciever extends MainActivity implements
         if ("/wearable_startcollectionservice".equals(item.getUri().getPath())) {
             DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
             if (dataMap.containsKey("StartCollectionService")) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(DataMapReciever.this);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
                 String getAddress = prefs.getString("getAddress", "00:00:00:00:00:00");
                 String getName = prefs.getString("getName", "");
 
@@ -188,9 +195,9 @@ public class DataMapReciever extends MainActivity implements
                     btDevice.address = getAddress;
                     btDevice.save();
                 }
-                Context context = getApplicationContext();
+                Context context = mContext;
                 CollectionServiceStarter restartCollectionService = new CollectionServiceStarter(context);
-                restartCollectionService.restartCollectionService(getApplicationContext());
+                restartCollectionService.restartCollectionService(mContext);
                 Log.d("DexCollectionService", "DexCollectionService started " + getAddress + "  " + getName);
             }
         }
@@ -199,10 +206,10 @@ public class DataMapReciever extends MainActivity implements
             DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
             if (dataMap.containsKey("startcalibration")) {
                 double calValue = Double.parseDouble(dataMap.getString("calibration", ""));
-                Calibration.create(calValue, getApplicationContext());
+                Calibration.create(calValue, mContext);
                 Log.d("NEW CALIBRATION", "Calibration value: " + calValue);
                 if (Sensor.isActive()) {
-                    SyncingService.startActionCalibrationCheckin(getApplicationContext());
+                    SyncingService.startActionCalibrationCheckin(mContext);
                     Log.d("CALIBRATION", "Checked in all calibrations");
                 } else {
                     Log.d("CALIBRATION", "ERROR, sensor not active");
@@ -215,7 +222,7 @@ public class DataMapReciever extends MainActivity implements
             if (dataMap.containsKey("startdoublecalibration")) {
                 double calValue1 = Double.parseDouble(dataMap.getString("doublecalibration1", ""));
                 double calValue2 = Double.parseDouble(dataMap.getString("doublecalibration2", ""));
-                Calibration.initialCalibration(calValue1, calValue2, getApplicationContext());
+                Calibration.initialCalibration(calValue1, calValue2, mContext);
                 Log.d("NEW CALIBRATION", "Calibration value_1: " + calValue1);
                 Log.d("NEW CALIBRATION", "Calibration value_2: " + calValue2);
             }
@@ -243,10 +250,9 @@ public class DataMapReciever extends MainActivity implements
         Log.e(TAG, "connectionFailed GoogleAPI");
     }
 
-    @Override
+    //@Override
     public void onDestroy() {
         releaseGoogleApiClient();
-        super.onDestroy();
+        //super.onDestroy();
     }
-
 }
