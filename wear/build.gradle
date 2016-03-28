@@ -31,6 +31,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
-    compile 'com.ustwo.android:clockwise-wearable:1.0.2'
     compile project(':ActiveAndroid')
 }

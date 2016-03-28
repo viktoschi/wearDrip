@@ -3,13 +3,20 @@ package weardrip.weardrip;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 /**
  * Created by Leonie1 on 28.03.2016.
  */
-public class WatchfacePrefernces {
+public class WatchfacePrefernces extends PreferenceActivity {
 
-
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
+        super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.preferences);
+    }
 
     private int backgroundColour = BACKGROUND_DEFAULT_COLOUR;
     private int dateAndTimeColour = DATE_AND_TIME_DEFAULT_COLOUR;
