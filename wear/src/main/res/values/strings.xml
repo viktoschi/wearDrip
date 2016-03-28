@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">wearDrip</string>
+    <string name="wf1">wearDrip Layout Watchface</string>
 
 </resources>
