@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
+import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -54,6 +55,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
     @Override
     public Engine onCreateEngine() {
+        CollectionServiceStarter.newStart(this);
         return new Engine();
     }
 
@@ -305,7 +307,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             // Get the current Time
             mTime.setToNow();
             showBG();
-            delta.setText("mg/dl");
+            delta.setText("n/a");
             sgv.setText(bgvalue);
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
             timestamp.setText("--'");

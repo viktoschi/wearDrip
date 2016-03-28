@@ -16,9 +16,9 @@ public class AutoStart extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d("DexDrip", "Service auto starter, starting!");
         CollectionServiceStarter.newStart(context);
+
         //context.startService(new Intent(context, MissedReadingService.class));
     }
-
 
 
 }
