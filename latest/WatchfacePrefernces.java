@@ -6,9 +6,7 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-/**
- * Created by Leonie1 on 28.03.2016.
- */
+
 public class WatchfacePrefernces extends PreferenceActivity {
 
     @Override
