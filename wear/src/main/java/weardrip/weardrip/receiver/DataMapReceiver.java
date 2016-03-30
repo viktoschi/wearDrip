@@ -3,6 +3,7 @@ package weardrip.weardrip.receiver;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +35,8 @@ import java.util.Calendar;
 public class DataMapReceiver extends WearableListenerService implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+
+    private static final String ACTION_SEND = "weardrip.weardrip.RESEND_DATA";
 
     private GoogleApiClient googleApiClient;
 
@@ -70,6 +73,11 @@ public class DataMapReceiver extends WearableListenerService implements
         }
     }
 
+    public static void requestData(Context context) {
+        Intent intent = new Intent(context, DataMapReceiver.class);
+        intent.setAction(ACTION_SEND);
+        context.startService(intent);
+    }
 
     @Override
     public void onConnected(Bundle bundle) {

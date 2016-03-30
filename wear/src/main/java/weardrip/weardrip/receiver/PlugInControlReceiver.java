@@ -1,4 +1,4 @@
-package weardrip.weardrip.reciever;
+package weardrip.weardrip.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

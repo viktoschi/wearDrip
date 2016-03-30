@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
@@ -120,7 +121,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                     .setShowSystemUiTime(false)
                     .build());
             Resources resources = wearDripWatchFace.this.getResources();
-
+            //register Message Receiver
+            LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, new IntentFilter(Intent.ACTION_SEND));
             mTime = new Time();
 
             // Inflate the layout that we're using for the watch face
