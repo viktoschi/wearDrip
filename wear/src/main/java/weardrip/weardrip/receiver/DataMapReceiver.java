@@ -2,9 +2,7 @@ package weardrip.weardrip.receiver;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,13 +26,12 @@ import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableListenerService;
 
 import java.util.Calendar;
 
-import weardrip.weardrip.MainActivity;
 
-
-public class DataMapReceiver implements
+public class DataMapReceiver extends WearableListenerService implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
