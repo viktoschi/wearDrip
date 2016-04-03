@@ -1,4 +1,4 @@
-package weardrip.weardrip.receiver;
+package weardrip.weardrip.services;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -32,9 +32,10 @@ import com.google.android.gms.wearable.WearableListenerService;
 import java.util.Calendar;
 
 
-public class DataMapReceiver extends WearableListenerService implements
+public class ListenerService extends WearableListenerService implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+
 
     private static final String ACTION_SEND = "weardrip.weardrip.RESEND_DATA";
 
@@ -44,16 +45,13 @@ public class DataMapReceiver extends WearableListenerService implements
     private Context mContext;
 
 
-    public DataMapReceiver(Context context) {
+    public ListenerService(Context context) {
         mContext = context;
     }
 
-   // @Override
+    // @Override
     public void onCreate() {
-        //super.onCreate();
-
-
-
+        super.onCreate();
 
         //watchFace = wearDripWatchFace.newInstance(wearDripWatchFaceService.this);
 
@@ -74,7 +72,7 @@ public class DataMapReceiver extends WearableListenerService implements
     }
 
     public static void requestData(Context context) {
-        Intent intent = new Intent(context, DataMapReceiver.class);
+        Intent intent = new Intent(context, ListenerService.class);
         intent.setAction(ACTION_SEND);
         context.startService(intent);
     }
@@ -241,7 +239,7 @@ public class DataMapReceiver extends WearableListenerService implements
                 processConfigurationFor(item);
             }
             dataItems.release();
-           // invalidateIfNecessary();
+            // invalidateIfNecessary();
         }
     };
 

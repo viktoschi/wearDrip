@@ -83,6 +83,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             }
         };
 
+
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -92,6 +93,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         };
 
         boolean mRegisteredTimeZoneReceiver = false;
+
 
         boolean mAmbient;
 
@@ -121,8 +123,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                     .setShowSystemUiTime(false)
                     .build());
             Resources resources = wearDripWatchFace.this.getResources();
-            //register Message Receiver
-            LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver, new IntentFilter(Intent.ACTION_SEND));
             mTime = new Time();
 
             // Inflate the layout that we're using for the watch face
@@ -133,6 +133,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay();
             display.getSize(displaySize);
+
 
             // Find some views for later use
             sgv = (TextView) myLayout.findViewById(R.id.sgv);
