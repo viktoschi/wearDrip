@@ -41,7 +41,7 @@ public class ListenerService extends WearableListenerService implements
     private static final String WEARABLE_STOPCOLLECTIONSERVICE = "/wearable_stopcollectionservice";
     private static final String WEARABLE_STARTCOLLECTIONSERVICE = "/wearable_startcollectionservice";
     private static final String WEARABLE_CALIBRATION = "/wearable_calibration";
-    private static final String WEARABLE_DOUBLECALIBRATION = "/wearable_DOUBLEcalibration";
+    private static final String WEARABLE_DOUBLECALIBRATION = "/wearable_doublecalibration";
 
     private Context mContext;
 

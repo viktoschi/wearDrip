@@ -297,7 +297,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             mBgReading = BgReading.last();
             if(mBgReading != null) {
                 double calculated_value = mBgReading.calculated_value;
-                DecimalFormat df = new DecimalFormat("#.");
+                DecimalFormat df = new DecimalFormat("#");
                 bgvalue = String.valueOf(df.format(calculated_value));
             } else {
                 bgvalue = "n/a";
