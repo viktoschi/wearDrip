@@ -13,7 +13,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
@@ -21,7 +20,6 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -38,7 +36,10 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -295,7 +296,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         public void showBG() {
             BgReading mBgReading;
             mBgReading = BgReading.last();
-            if(mBgReading != null) {
+            if (mBgReading != null) {
                 double calculated_value = mBgReading.calculated_value;
                 DecimalFormat df = new DecimalFormat("#");
                 bgvalue = String.valueOf(df.format(calculated_value));
@@ -304,16 +305,52 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             }
         }
 
+        String timestamplastreading;
+        public void getTimestampLastreading() {
+            Long mTimeStampLastreading;
+            mTimeStampLastreading = BgReading.getTimeSinceLastReading();
+            if (mTimeStampLastreading != null) {
+                DecimalFormat df = new DecimalFormat("#");
+                timestamplastreading = String.valueOf(df.format(mTimeStampLastreading));
+            } else {
+                timestamplastreading = "--'";
+            }
+        }
+
+        String deltalastreading;
+        public void unitizedDeltaString() {
+            List<BgReading> last2 = BgReading.latest(2);
+            if (last2.size() < 2 || last2.get(0).timestamp - last2.get(1).timestamp > 20 * 60 * 1000) {
+                // don't show delta if there are not enough values or the values are more than 20 mintes apart
+                deltalastreading = "???";
+            }
+
+            double value = BgReading.currentSlope() * 5 * 60 * 1000;
+
+            if (Math.abs(value) > 100) {
+                // a delta > 100 will not happen with real BG values -> problematic sensor data
+                deltalastreading = "ERR";
+            }
+
+            DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
+            String delta_sign = "";
+            if (value > 0) {
+                delta_sign = "+";
+            }
+            deltalastreading = delta_sign + df.format(value);
+        }
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             // Get the current Time
             mTime.setToNow();
             showBG();
-            delta.setText("n/a");
+            getTimestampLastreading();
+            unitizedDeltaString();
+            delta.setText(deltalastreading);
             sgv.setText(bgvalue);
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
-            timestamp.setText("--'");
+            timestamp.setText(timestamplastreading + "′");
 
             if (!mAmbient) {
                 //second.setText(String.format("%02d", mTime.second));
@@ -348,4 +385,5 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             return isVisible() && !isInAmbientMode();
         }
     }
+
 }
