@@ -50,7 +50,9 @@ public class ListenerService extends WearableListenerService implements
 
         DataRequester(Context context) {
             mContext = context;
+
         }
+
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -131,7 +133,7 @@ public class ListenerService extends WearableListenerService implements
 
                 if (path.equals((WEARABLE_PREFERNCES))){
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
-                    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                    final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     prefs.edit().putString("dex_txid", dataMap.getString("txid")).apply();
                     prefs.edit().putString("getAddress", dataMap.getString("getAddress")).apply();
                     prefs.edit().putString("getName", dataMap.getString("getName")).apply();
@@ -153,7 +155,7 @@ public class ListenerService extends WearableListenerService implements
                     if (dataMap.containsKey("StopCollectionService")) {
                         Log.d("ActiveBluetoothDevice ", "forget");
                         BluetoothManager mBluetoothManager;
-                        mBluetoothManager = (BluetoothManager) mContext.getSystemService(Context.BLUETOOTH_SERVICE);
+                        mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
                         final BluetoothAdapter bluetoothAdapter = mBluetoothManager.getAdapter();
                         ActiveBluetoothDevice.forget();
                         bluetoothAdapter.disable();
@@ -175,7 +177,7 @@ public class ListenerService extends WearableListenerService implements
                 if (path.equals((WEARABLE_STARTCOLLECTIONSERVICE))){
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("StartCollectionService")) {
-                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                         String getAddress = prefs.getString("getAddress", "00:00:00:00:00:00");
                         String getName = prefs.getString("getName", "");
 
@@ -192,9 +194,9 @@ public class ListenerService extends WearableListenerService implements
                             btDevice.address = getAddress;
                             btDevice.save();
                         }
-                        Context context = mContext;
+                        Context context = this;
                         CollectionServiceStarter restartCollectionService = new CollectionServiceStarter(context);
-                        restartCollectionService.restartCollectionService(mContext);
+                        restartCollectionService.restartCollectionService(this);
                         Log.d("DexCollectionService", "DexCollectionService started " + getAddress + "  " + getName);
                     }
                 }
@@ -203,10 +205,10 @@ public class ListenerService extends WearableListenerService implements
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("startcalibration")) {
                         double calValue = Double.parseDouble(dataMap.getString("calibration", ""));
-                        Calibration.create(calValue, mContext);
+                        Calibration.create(calValue, this);
                         Log.d("NEW CALIBRATION", "Calibration value: " + calValue);
                         if (Sensor.isActive()) {
-                            SyncingService.startActionCalibrationCheckin(mContext);
+                            SyncingService.startActionCalibrationCheckin(this);
                             Log.d("CALIBRATION", "Checked in all calibrations");
                         } else {
                             Log.d("CALIBRATION", "ERROR, sensor not active");
@@ -219,7 +221,7 @@ public class ListenerService extends WearableListenerService implements
                     if (dataMap.containsKey("startdoublecalibration")) {
                         double calValue1 = Double.parseDouble(dataMap.getString("doublecalibration1", ""));
                         double calValue2 = Double.parseDouble(dataMap.getString("doublecalibration2", ""));
-                        Calibration.initialCalibration(calValue1, calValue2, mContext);
+                        Calibration.initialCalibration(calValue1, calValue2, this);
                         Log.d("NEW CALIBRATION", "Calibration value_1: " + calValue1);
                         Log.d("NEW CALIBRATION", "Calibration value_2: " + calValue2);
                     }
