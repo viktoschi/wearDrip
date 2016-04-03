@@ -96,7 +96,7 @@ public class ListenerService extends WearableListenerService implements
             public void run() {
                 toast.cancel();
             }
-        }, 500);
+        }, 1000);
 
         for (DataEvent event : dataEvents) {
             DataMap dataMap;
