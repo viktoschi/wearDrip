@@ -14,8 +14,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
+import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.format.DateFormat;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -27,17 +30,24 @@ import android.widget.TextView;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -55,6 +65,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
     private final List<BgReading> bgReadings = BgReading.latestForGraph(numValues, (long) (start_time * FUZZER));
 
 
+
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
      * displayed in interactive mode.
@@ -66,8 +77,83 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         CollectionServiceStarter.newStart(this);
         return new Engine();
     }
+    boolean mLowBitAmbient;
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private LineChart lineChart;
+    private int year = 2015;
+
+
+    private LineDataSet createSet() {
+
+        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setColor(ColorTemplate.getHoloBlue());
+        set.setCircleColor(Color.WHITE);
+        set.setLineWidth(2f);
+        set.setCircleRadius(4f);
+        set.setFillAlpha(65);
+        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setHighLightColor(Color.rgb(244, 117, 117));
+        set.setValueTextColor(Color.WHITE);
+        set.setValueTextSize(9f);
+        set.setDrawValues(false);
+        return set;
+    }
+
+    public void addEntry() {
+        LineData data = lineChart.getData();
+
+        if (data != null) {
+
+            ILineDataSet set = data.getDataSetByIndex(0);
+            // set.addEntry(...); // can be called as well
+
+            if (set == null) {
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            // add a new x-value first
+
+            long  start_time = 0;
+            ArrayList<String> XAxisTimeValue = new ArrayList<String>();
+            final java.text.DateFormat timeFormat = new SimpleDateFormat(DateFormat.is24HourFormat(getBaseContext()) ? "HH" : "h a");
+            timeFormat.setTimeZone(TimeZone.getDefault());
+            GregorianCalendar calendar = new GregorianCalendar();
+            calendar.setTimeInMillis(start_time);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            if (calendar.getTimeInMillis()<start_time){
+                calendar.add(Calendar.HOUR, 1);
+            }
+
+            while (calendar.getTimeInMillis()<end_time){
+                calendar.add(Calendar.HOUR, 1);
+            }
+
+
+            data.addXValue(XAxisTimeValue.get(data.getXValCount() % 12));
+
+            data.addEntry(new Entry((float) (Math.random() * 40) + 30f, set.getEntryCount()), 0);
+
+            // let the chart know it's data has changed
+            lineChart.notifyDataSetChanged();
+
+            // limit the number of visible entries
+            lineChart.setVisibleXRangeMaximum(120);
+            // mChart.setVisibleYRange(30, AxisDependency.LEFT);
+
+            // move to the latest entry
+            lineChart.moveViewToX(data.getXValCount() - 121);
+
+            // this automatically refreshes the chart (calls invalidate())
+            // mChart.moveViewTo(data.getXValCount()-7, 55f,
+            // AxisDependency.LEFT);
+        }
+    }
+
+    private class Engine extends CanvasWatchFaceService.Engine implements OnChartValueSelectedListener {
         static final int MSG_UPDATE_TIME = 0;
 
         /**
@@ -118,8 +204,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
          * disable anti-aliasing in ambient mode.
          */
-        boolean mLowBitAmbient;
-        private LineChart lineChart;
+
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -129,6 +214,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
+                    .setAcceptsTapEvents(true)
                     .build());
             Resources resources = wearDripWatchFace.this.getResources();
             mTime = new Time();
@@ -154,141 +240,57 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setDescription("");
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
-            lineChart.setBackgroundColor(-1);
-
-            // add an empty data object
-            lineChart.setData(new LineData());
-            // mChart.getXAxis().setDrawLabels(false);
-            // mChart.getXAxis().setDrawGridLines(false);
-
+            //lineChart.setBackgroundColor(-1);
             lineChart.invalidate();
 
+            lineChart.setOnChartValueSelectedListener(this);
+
+            // enable touch gestures
+            lineChart.setTouchEnabled(false);
+
+            // enable scaling and dragging
+            lineChart.setDragEnabled(false);
+            lineChart.setScaleEnabled(false);
+            lineChart.setDrawGridBackground(false);
+
+            // if disabled, scaling can be done on x- and y-axis separately
+            lineChart.setPinchZoom(false);
+
+            LineData data = new LineData();
+            data.setValueTextColor(Color.WHITE);
+
+            // add empty data
+            lineChart.setData(data);
+
+
+            // get the legend (only possible after setting data)
+            Legend l = lineChart.getLegend();
+
+            // modify the legend ...
+            // l.setPosition(LegendPosition.LEFT_OF_CHART);
+            l.setForm(Legend.LegendForm.LINE);
+            l.setTextColor(Color.WHITE);
+
+            XAxis xl = lineChart.getXAxis();
+            xl.setTextColor(Color.WHITE);
+            xl.setDrawGridLines(false);
+            xl.setAvoidFirstLastClipping(true);
+            xl.setSpaceBetweenLabels(5);
+            xl.setEnabled(true);
+
+            YAxis leftAxis = lineChart.getAxisLeft();
+            leftAxis.setTextColor(Color.WHITE);
+            leftAxis.setAxisMaxValue(100f);
+            leftAxis.setAxisMinValue(0f);
+            leftAxis.setDrawGridLines(true);
+
+            YAxis rightAxis = lineChart.getAxisRight();
+            rightAxis.setEnabled(false);
+
         }
 
-        int[] mColors = ColorTemplate.LIBERTY_COLORS;
 
 
-        private void addEntry(List<BgReading> bgReadings) {
-
-            LineData data = lineChart.getData();
-
-            if(data != null) {
-
-                ILineDataSet set = data.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
-
-                if (set == null) {
-                    set = createSet();
-                    data.addDataSet(set);
-                }
-
-                // add a new x-value first
-                data.addXValue(set.getEntryCount() + "");
-
-                // choose a random dataSet
-                int randomDataSetIndex = (int) (Math.random() * data.getDataSetCount());
-
-                data.addEntry(new Entry((float) (Math.random() * 10) + 50f, set.getEntryCount()), randomDataSetIndex);
-
-                // let the chart know it's data has changed
-                lineChart.notifyDataSetChanged();
-
-                lineChart.setVisibleXRangeMaximum(6);
-                lineChart.setVisibleYRangeMaximum(15, YAxis.AxisDependency.LEFT);
-
-                // this automatically refreshes the chart (calls invalidate())
-                lineChart.moveViewTo(data.getXValCount()-7, 50f, YAxis.AxisDependency.LEFT);
-            }
-        }
-
-        private void removeLastEntry() {
-
-            LineData data = lineChart.getData();
-
-            if(data != null) {
-
-                ILineDataSet set = data.getDataSetByIndex(0);
-
-                if (set != null) {
-
-                    Entry e = set.getEntryForXIndex(set.getEntryCount() - 1);
-
-                    data.removeEntry(e, 0);
-                    // or remove by index
-                    // mData.removeEntry(xIndex, dataSetIndex);
-
-                    lineChart.notifyDataSetChanged();
-                    lineChart.invalidate();
-                }
-            }
-        }
-
-        private void addDataSet() {
-
-            LineData data = lineChart.getData();
-
-            if(data != null) {
-
-                int count = (data.getDataSetCount() + 1);
-
-                // create 10 y-vals
-                ArrayList<Entry> yVals = new ArrayList<Entry>();
-
-                if(data.getXValCount() == 0) {
-                    // add 10 x-entries
-                    for (int i = 0; i < 10; i++) {
-                        data.addXValue("" + (i+1));
-                    }
-                }
-
-                for (int i = 0; i < data.getXValCount(); i++) {
-                    yVals.add(new Entry((float) (Math.random() * 50f) + 50f * count, i));
-                }
-
-                LineDataSet set = new LineDataSet(yVals, "DataSet " + count);
-                set.setLineWidth(2.5f);
-                set.setCircleRadius(4.5f);
-
-                int color = mColors[count % mColors.length];
-
-                set.setColor(color);
-                set.setCircleColor(color);
-                set.setHighLightColor(color);
-                set.setValueTextSize(10f);
-                set.setValueTextColor(color);
-
-                data.addDataSet(set);
-                lineChart.notifyDataSetChanged();
-                lineChart.invalidate();
-            }
-        }
-
-        private void removeDataSet() {
-
-            LineData data = lineChart.getData();
-
-            if(data != null) {
-
-                data.removeDataSet(data.getDataSetByIndex(data.getDataSetCount() - 1));
-
-                lineChart.notifyDataSetChanged();
-                lineChart.invalidate();
-            }
-        }
-
-        private LineDataSet createSet() {
-
-            LineDataSet set = new LineDataSet(null, "DataSet 1");
-            set.setLineWidth(2.5f);
-            set.setCircleRadius(4.5f);
-            set.setColor(Color.rgb(240, 99, 99));
-            set.setCircleColor(Color.rgb(240, 99, 99));
-            set.setHighLightColor(Color.rgb(190, 190, 190));
-            set.setAxisDependency(YAxis.AxisDependency.LEFT);
-            set.setValueTextSize(10f);
-
-            return set;
-        }
 
         @Override
         public void onDestroy() {
@@ -382,11 +384,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             updateTimer();
         }
 
-        public void BGgraph() {
-            addEntry(bgReadings);
-            lineChart.notifyDataSetChanged(); // let the chart know it's data changed
-            lineChart.invalidate(); // refresh
-        }
 
         String bgvalue;
         public void showBG() {
@@ -448,7 +445,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             showBG();
             getTimestampLastreading();
             unitizedDeltaString();
-            BGgraph();
             delta.setText(deltalastreading);
             sgv.setText(bgvalue);
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
@@ -486,6 +482,33 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }
-    }
 
+        @Override
+        public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+
+        }
+
+        @Override
+        public void onNothingSelected() {
+
+        }
+
+        @Override
+        public void onTapCommand(
+                @TapType int tapType, int x, int y, long eventTime) {
+            switch (tapType) {
+                case WatchFaceService.TAP_TYPE_TAP:
+                    break;
+                case WatchFaceService.TAP_TYPE_TOUCH:
+                    Log.v("bla", "TAP_TYPE_TOUCH");
+                    addEntry();
+                    break;
+                case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
+                    break;
+                default:
+                    super.onTapCommand(tapType, x, y, eventTime);
+                    break;
+            }
+        }
+    }
 }
