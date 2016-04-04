@@ -37,6 +37,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -47,6 +48,12 @@ import java.util.concurrent.TimeUnit;
 public class wearDripWatchFace extends CanvasWatchFaceService {
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+    public static final int FUZZER = (1000 * 30 * 5);
+    public double  end_time = (new Date().getTime() + (60000 * 10)) / FUZZER;
+    private final int numValues =(60/5)*24;
+    public double  start_time = end_time - ((60000 * 60 * 24)) / FUZZER;
+    private final List<BgReading> bgReadings = BgReading.latestForGraph(numValues, (long) (start_time * FUZZER));
+
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
@@ -147,6 +154,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setDescription("");
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
+            lineChart.setBackgroundColor(-1);
 
             // add an empty data object
             lineChart.setData(new LineData());
@@ -160,7 +168,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         int[] mColors = ColorTemplate.LIBERTY_COLORS;
 
 
-        private void addEntry() {
+        private void addEntry(List<BgReading> bgReadings) {
 
             LineData data = lineChart.getData();
 
@@ -374,6 +382,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             updateTimer();
         }
 
+        public void BGgraph() {
+            addEntry(bgReadings);
+            lineChart.notifyDataSetChanged(); // let the chart know it's data changed
+            lineChart.invalidate(); // refresh
+        }
+
         String bgvalue;
         public void showBG() {
             BgReading mBgReading;
@@ -382,9 +396,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 double calculated_value = mBgReading.calculated_value;
                 DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
                 bgvalue = String.valueOf(df.format(calculated_value));
-                addEntry();
-                lineChart.notifyDataSetChanged(); // let the chart know it's data changed
-                lineChart.invalidate(); // refresh
             } else {
                 bgvalue = "n/a";
             }
@@ -437,6 +448,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             showBG();
             getTimestampLastreading();
             unitizedDeltaString();
+            BGgraph();
             delta.setText(deltalastreading);
             sgv.setText(bgvalue);
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
