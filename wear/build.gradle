@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 22
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "weardrip.weardrip"
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -30,6 +30,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-wearable:8.4.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.2.3'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile project(':ActiveAndroid')
 }
