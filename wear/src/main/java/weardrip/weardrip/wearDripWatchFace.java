@@ -158,8 +158,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
             // add an empty data object
             lineChart.setData(new LineData());
-//        mChart.getXAxis().setDrawLabels(false);
-//        mChart.getXAxis().setDrawGridLines(false);
+            // mChart.getXAxis().setDrawLabels(false);
+            // mChart.getXAxis().setDrawGridLines(false);
 
             lineChart.invalidate();
 
@@ -195,8 +195,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
                 lineChart.setVisibleXRangeMaximum(6);
                 lineChart.setVisibleYRangeMaximum(15, YAxis.AxisDependency.LEFT);
-//
-//            // this automatically refreshes the chart (calls invalidate())
+
+                // this automatically refreshes the chart (calls invalidate())
                 lineChart.moveViewTo(data.getXValCount()-7, 50f, YAxis.AxisDependency.LEFT);
             }
         }
