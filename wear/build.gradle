@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 21
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "weardrip.weardrip"
         minSdkVersion 21
-        targetSdkVersion 22
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
     }
