@@ -298,7 +298,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             mBgReading = BgReading.last();
             if (mBgReading != null) {
                 double calculated_value = mBgReading.calculated_value;
-                DecimalFormat df = new DecimalFormat("#");
+                DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
                 bgvalue = String.valueOf(df.format(calculated_value));
             } else {
                 bgvalue = "n/a";
@@ -310,7 +310,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             Long mTimeStampLastreading;
             mTimeStampLastreading = BgReading.getTimeSinceLastReading();
             if (mTimeStampLastreading != null) {
-                DecimalFormat df = new DecimalFormat("#");
+                DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
                 timestamplastreading = String.valueOf(df.format(mTimeStampLastreading));
             } else {
                 timestamplastreading = "--'";
@@ -320,24 +320,28 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         String deltalastreading;
         public void unitizedDeltaString() {
             List<BgReading> last2 = BgReading.latest(2);
-            if (last2.size() < 2 || last2.get(0).timestamp - last2.get(1).timestamp > 20 * 60 * 1000) {
-                // don't show delta if there are not enough values or the values are more than 20 mintes apart
-                deltalastreading = "???";
-            }
+            if (BgReading.latest(2) != null) {
+                if (last2.size() < 2 || last2.get(0).timestamp - last2.get(1).timestamp > 20 * 60 * 1000) {
+                    // don't show delta if there are not enough values or the values are more than 20 mintes apart
+                    deltalastreading = "???";
+                }
 
-            double value = BgReading.currentSlope() * 5 * 60 * 1000;
+                double value = BgReading.currentSlope() * 5 * 60 * 1000;
 
-            if (Math.abs(value) > 100) {
-                // a delta > 100 will not happen with real BG values -> problematic sensor data
-                deltalastreading = "ERR";
-            }
+                if (Math.abs(value) > 100) {
+                    // a delta > 100 will not happen with real BG values -> problematic sensor data
+                    deltalastreading = "ERR";
+                }
 
-            DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
-            String delta_sign = "";
-            if (value > 0) {
-                delta_sign = "+";
+                DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
+                String delta_sign = "";
+                if (value > 0) {
+                    delta_sign = "+";
+                }
+                deltalastreading = delta_sign + df.format(value);
+            } else {
+                deltalastreading = "---";
             }
-            deltalastreading = delta_sign + df.format(value);
         }
 
         @Override
