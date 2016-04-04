@@ -27,12 +27,11 @@ import android.widget.TextView;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.DecimalFormat;
@@ -113,6 +112,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
+        private LineChart lineChart;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -143,61 +143,143 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
 
 
-            LineChart lineChart = (LineChart) myLayout.findViewById(R.id.chart);
+            lineChart = (LineChart) myLayout.findViewById(R.id.chart);
             lineChart.setDescription("");
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
-
-            ArrayList<Entry> entries = new ArrayList<>();
-            entries.add(new Entry(4f, 0));
-            entries.add(new Entry(8f, 1));
-            entries.add(new Entry(6f, 2));
-            entries.add(new Entry(2f, 3));
-            entries.add(new Entry(18f, 4));
-            entries.add(new Entry(9f, 5));
-
-            LineDataSet dataset = new LineDataSet(entries, "# of Calls");
-
-            ArrayList<String> labels = new ArrayList<String>();
-            labels.add("January");
-            labels.add("February");
-            labels.add("March");
-            labels.add("April");
-            labels.add("May");
-            labels.add("June");
-
-            LineData data = new LineData(labels, dataset);
-            //dataset.setColors(ColorTemplate.COLORFUL_COLORS);
-            //dataset.setColors(ColorTemplate.VORDIPLOM_COLORS);
-            //dataset.setColors(ColorTemplate.JOYFUL_COLORS);
-            dataset.setColors(ColorTemplate.LIBERTY_COLORS);
-            //dataset.setColors(ColorTemplate.PASTEL_COLORS);
-            dataset.setDrawCubic(true);
-            dataset.setDrawFilled(true);
-            dataset.setDrawCircles(false);
-            dataset.setDrawValues(false);
-
-            lineChart.setPinchZoom(false);
-            lineChart.setDragEnabled(false);
-            lineChart.setScaleEnabled(false);
             lineChart.setDrawGridBackground(false);
-            lineChart.setTouchEnabled(false);
-            lineChart.setData(data);
-            lineChart.animateY(5000);
 
-            // get the legend (only possible after setting data)
-            Legend l = lineChart.getLegend();
-            l.setEnabled(false);
+            // add an empty data object
+            lineChart.setData(new LineData());
+//        mChart.getXAxis().setDrawLabels(false);
+//        mChart.getXAxis().setDrawGridLines(false);
 
-            XAxis xl = lineChart.getXAxis();
-            xl.setDrawGridLines(true);
-            xl.setEnabled(false);
+            lineChart.invalidate();
 
-            YAxis leftAxis = lineChart.getAxisLeft();
-            leftAxis.setDrawGridLines(false);
+        }
 
-            YAxis rightAxis = lineChart.getAxisRight();
-            rightAxis.setEnabled(false);
+        int[] mColors = ColorTemplate.LIBERTY_COLORS;
 
+
+        private void addEntry() {
+
+            LineData data = lineChart.getData();
+
+            if(data != null) {
+
+                ILineDataSet set = data.getDataSetByIndex(0);
+                // set.addEntry(...); // can be called as well
+
+                if (set == null) {
+                    set = createSet();
+                    data.addDataSet(set);
+                }
+
+                // add a new x-value first
+                data.addXValue(set.getEntryCount() + "");
+
+                // choose a random dataSet
+                int randomDataSetIndex = (int) (Math.random() * data.getDataSetCount());
+
+                data.addEntry(new Entry((float) (Math.random() * 10) + 50f, set.getEntryCount()), randomDataSetIndex);
+
+                // let the chart know it's data has changed
+                lineChart.notifyDataSetChanged();
+
+                lineChart.setVisibleXRangeMaximum(6);
+                lineChart.setVisibleYRangeMaximum(15, YAxis.AxisDependency.LEFT);
+//
+//            // this automatically refreshes the chart (calls invalidate())
+                lineChart.moveViewTo(data.getXValCount()-7, 50f, YAxis.AxisDependency.LEFT);
+            }
+        }
+
+        private void removeLastEntry() {
+
+            LineData data = lineChart.getData();
+
+            if(data != null) {
+
+                ILineDataSet set = data.getDataSetByIndex(0);
+
+                if (set != null) {
+
+                    Entry e = set.getEntryForXIndex(set.getEntryCount() - 1);
+
+                    data.removeEntry(e, 0);
+                    // or remove by index
+                    // mData.removeEntry(xIndex, dataSetIndex);
+
+                    lineChart.notifyDataSetChanged();
+                    lineChart.invalidate();
+                }
+            }
+        }
+
+        private void addDataSet() {
+
+            LineData data = lineChart.getData();
+
+            if(data != null) {
+
+                int count = (data.getDataSetCount() + 1);
+
+                // create 10 y-vals
+                ArrayList<Entry> yVals = new ArrayList<Entry>();
+
+                if(data.getXValCount() == 0) {
+                    // add 10 x-entries
+                    for (int i = 0; i < 10; i++) {
+                        data.addXValue("" + (i+1));
+                    }
+                }
+
+                for (int i = 0; i < data.getXValCount(); i++) {
+                    yVals.add(new Entry((float) (Math.random() * 50f) + 50f * count, i));
+                }
+
+                LineDataSet set = new LineDataSet(yVals, "DataSet " + count);
+                set.setLineWidth(2.5f);
+                set.setCircleRadius(4.5f);
+
+                int color = mColors[count % mColors.length];
+
+                set.setColor(color);
+                set.setCircleColor(color);
+                set.setHighLightColor(color);
+                set.setValueTextSize(10f);
+                set.setValueTextColor(color);
+
+                data.addDataSet(set);
+                lineChart.notifyDataSetChanged();
+                lineChart.invalidate();
+            }
+        }
+
+        private void removeDataSet() {
+
+            LineData data = lineChart.getData();
+
+            if(data != null) {
+
+                data.removeDataSet(data.getDataSetByIndex(data.getDataSetCount() - 1));
+
+                lineChart.notifyDataSetChanged();
+                lineChart.invalidate();
+            }
+        }
+
+        private LineDataSet createSet() {
+
+            LineDataSet set = new LineDataSet(null, "DataSet 1");
+            set.setLineWidth(2.5f);
+            set.setCircleRadius(4.5f);
+            set.setColor(Color.rgb(240, 99, 99));
+            set.setCircleColor(Color.rgb(240, 99, 99));
+            set.setHighLightColor(Color.rgb(190, 190, 190));
+            set.setAxisDependency(YAxis.AxisDependency.LEFT);
+            set.setValueTextSize(10f);
+
+            return set;
         }
 
         @Override
@@ -300,18 +382,22 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 double calculated_value = mBgReading.calculated_value;
                 DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
                 bgvalue = String.valueOf(df.format(calculated_value));
+                addEntry();
+                lineChart.notifyDataSetChanged(); // let the chart know it's data changed
+                lineChart.invalidate(); // refresh
             } else {
                 bgvalue = "n/a";
             }
         }
+
 
         String timestamplastreading;
         public void getTimestampLastreading() {
             Long mTimeStampLastreading;
             mTimeStampLastreading = BgReading.getTimeSinceLastReading();
             if (mTimeStampLastreading != null) {
-                DecimalFormat df = new DecimalFormat("#", new DecimalFormatSymbols(Locale.ENGLISH));
-                timestamplastreading = String.valueOf(df.format(mTimeStampLastreading));
+                long minutesago=((mTimeStampLastreading)/1000)/60;
+                timestamplastreading = String.valueOf(minutesago);
             } else {
                 timestamplastreading = "--'";
             }
