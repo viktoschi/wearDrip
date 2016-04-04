@@ -195,22 +195,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             startTimerIfNecessary();
         }
 
-        @Override
-        public void onTapCommand(
-                @TapType int tapType, int x, int y, long eventTime) {
-            switch (tapType) {
-                case WatchFaceService.TAP_TYPE_TAP:
-                    break;
-                case WatchFaceService.TAP_TYPE_TOUCH:
-                    changeBackground();
-                    break;
-                case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
-                    break;
-                default:
-                    super.onTapCommand(tapType, x, y, eventTime);
-                    break;
-            }
-        }
 
         int mTapCount=0;
         private void changeBackground() {
