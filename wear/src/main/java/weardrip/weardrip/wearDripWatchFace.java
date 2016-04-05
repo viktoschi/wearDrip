@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
+import com.eveningoutpost.dexdrip.UtilityModels.Intents;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -40,8 +41,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
-import org.mockito.Mockito;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -53,8 +52,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -67,7 +64,26 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
      * displayed in interactive mode.
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+    final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mTime.clear(intent.getStringExtra("time-zone"));
+            mTime.setToNow();
+        }
+    };
 
+    final BroadcastReceiver newDataReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            addEntry();
+            Log.v("bla", "newDataReceiver");
+        }
+    };
+    Time mTime;
+
+
+    boolean mRegisteredTimeZoneReceiver = false;
+    boolean mRegisterednewDataReceiver = false;
     @Override
     public Engine onCreateEngine() {
         CollectionServiceStarter.newStart(this);
@@ -133,7 +149,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 bgvalue = 0;
             }
 
-            data.addEntry(new Entry(bgvalue , set.getEntryCount()), 0);
+            data.addEntry(new Entry(bgvalue, set.getEntryCount()), 0);
 
             // let the chart know it's data has changed
             lineChart.notifyDataSetChanged();
@@ -175,20 +191,10 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         };
 
 
-        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mTime.clear(intent.getStringExtra("time-zone"));
-                mTime.setToNow();
-            }
-        };
-
-        boolean mRegisteredTimeZoneReceiver = false;
 
 
         boolean mAmbient;
 
-        Time mTime;
 
         float mXOffset = 0;
         float mYOffset = 0;
@@ -284,11 +290,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
             YAxis rightAxis = lineChart.getAxisRight();
             rightAxis.setEnabled(true);
-
         }
-
-
-
 
         @Override
         public void onDestroy() {
@@ -308,6 +310,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 mTime.setToNow();
             } else {
                 unregisterReceiver();
+
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -317,19 +320,28 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         private void registerReceiver() {
             if (mRegisteredTimeZoneReceiver) {
-                return;
+                mRegisteredTimeZoneReceiver = false;
+                wearDripWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+
             }
-            mRegisteredTimeZoneReceiver = true;
-            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            wearDripWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+            if (mRegisterednewDataReceiver) {
+                mRegisterednewDataReceiver = false;
+                wearDripWatchFace.this.unregisterReceiver(newDataReceiver);
+
+            }
         }
 
         private void unregisterReceiver() {
             if (!mRegisteredTimeZoneReceiver) {
-                return;
+                mRegisteredTimeZoneReceiver = true;
+                IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+                wearDripWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
             }
-            mRegisteredTimeZoneReceiver = false;
-            wearDripWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+            if (!mRegisterednewDataReceiver) {
+                mRegisterednewDataReceiver = true;
+                IntentFilter filter = new IntentFilter(Intents.ACTION_NEW_BG_ESTIMATE_NO_DATA);
+                wearDripWatchFace.this.registerReceiver(newDataReceiver, filter);
+            }
         }
 
         @Override
@@ -384,7 +396,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
 
         String bgvalue;
-        String oldbgvalue;
         public void showBG() {
             BgReading mBgReading;
             mBgReading = BgReading.last();
@@ -395,16 +406,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             } else {
                 bgvalue = "n/a";
             }
-
         }
-
-
-public void monitorBG(){
-    BgReading a = Mockito.spy(new BgReading());
-    a.last();
-    verify(a, atLeastOnce()).last();
-    Log.v("micking", String.valueOf(verify(a, atLeastOnce()).last()));
-}
 
 
 
@@ -452,7 +454,6 @@ public void monitorBG(){
             // Get the current Time
             mTime.setToNow();
             showBG();
-            monitorBG();
             getTimestampLastreading();
             unitizedDeltaString();
             delta.setText(deltalastreading);
@@ -502,6 +503,7 @@ public void monitorBG(){
         public void onNothingSelected() {
 
         }
+
 
         @Override
         public void onTapCommand(
