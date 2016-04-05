@@ -99,6 +99,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         set.setDrawValues(false);
         return set;
     }
+    ArrayList<String> XAxisTimeValue = new ArrayList<String>();
 
     public void addEntry() {
         LineData data = lineChart.getData();
@@ -119,9 +120,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             calendar.setTime(date);   // assigns calendar to given date
             int inthours = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
             String hourString = String.format("%02d", inthours);
-            ArrayList<String> XAxisTimeValue = new ArrayList<String>();
             XAxisTimeValue.add(hourString);
-
 
             data.addXValue(XAxisTimeValue.get(data.getXValCount()));
             data.addEntry(new Entry((float) (Math.random() * 40) + 30f, set.getEntryCount()), 0);
