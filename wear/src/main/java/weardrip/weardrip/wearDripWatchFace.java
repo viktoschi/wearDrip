@@ -114,27 +114,16 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             }
 
             // add a new x-value first
-
-            long  start_time = 0;
+            Date date = new Date();   // given date
+            Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
+            calendar.setTime(date);   // assigns calendar to given date
+            int inthours = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
+            String hourString = String.format("%02d", inthours);
             ArrayList<String> XAxisTimeValue = new ArrayList<String>();
-            final java.text.DateFormat timeFormat = new SimpleDateFormat(DateFormat.is24HourFormat(getBaseContext()) ? "HH" : "h a");
-            timeFormat.setTimeZone(TimeZone.getDefault());
-            GregorianCalendar calendar = new GregorianCalendar();
-            calendar.setTimeInMillis(start_time);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            if (calendar.getTimeInMillis()<start_time){
-                calendar.add(Calendar.HOUR, 1);
-            }
-
-            while (calendar.getTimeInMillis()<end_time){
-                calendar.add(Calendar.HOUR, 1);
-            }
+            XAxisTimeValue.add(hourString);
 
 
-            data.addXValue(XAxisTimeValue.get(data.getXValCount() % 12));
-
+            data.addXValue(XAxisTimeValue.get(data.getXValCount()));
             data.addEntry(new Entry((float) (Math.random() * 40) + 30f, set.getEntryCount()), 0);
 
             // let the chart know it's data has changed
@@ -500,7 +489,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    Log.v("bla", "TAP_TYPE_TOUCH");
                     addEntry();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
