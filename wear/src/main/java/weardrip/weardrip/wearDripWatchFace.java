@@ -17,6 +17,7 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -39,6 +40,8 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import org.mockito.Mockito;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -50,6 +53,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -89,6 +94,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         set.setDrawValues(false);
         return set;
     }
+
     ArrayList<String> XAxisTimeValue = new ArrayList<String>();
 
     public void addEntry() {
@@ -378,6 +384,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
 
         String bgvalue;
+        String oldbgvalue;
         public void showBG() {
             BgReading mBgReading;
             mBgReading = BgReading.last();
@@ -388,7 +395,17 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             } else {
                 bgvalue = "n/a";
             }
+
         }
+
+
+public void monitorBG(){
+    BgReading a = Mockito.spy(new BgReading());
+    a.last();
+    verify(a, atLeastOnce()).last();
+    Log.v("micking", String.valueOf(verify(a, atLeastOnce()).last()));
+}
+
 
 
         String timestamplastreading;
@@ -435,6 +452,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             // Get the current Time
             mTime.setToNow();
             showBG();
+            monitorBG();
             getTimestampLastreading();
             unitizedDeltaString();
             delta.setText(deltalastreading);
@@ -492,7 +510,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    addEntry();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
