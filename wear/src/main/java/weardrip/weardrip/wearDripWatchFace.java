@@ -58,12 +58,6 @@ import java.util.concurrent.TimeUnit;
 public class wearDripWatchFace extends CanvasWatchFaceService {
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
-    public static final int FUZZER = (1000 * 30 * 5);
-    public double  end_time = (new Date().getTime() + (60000 * 10)) / FUZZER;
-    private final int numValues =(60/5)*24;
-    public double  start_time = end_time - ((60000 * 60 * 24)) / FUZZER;
-    private final List<BgReading> bgReadings = BgReading.latestForGraph(numValues, (long) (start_time * FUZZER));
-
 
 
     /**
@@ -80,13 +74,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
     boolean mLowBitAmbient;
 
     private LineChart lineChart;
-    private int year = 2015;
 
 
     private LineDataSet createSet() {
 
         LineDataSet set = new LineDataSet(null, "Dynamic Data");
-        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setAxisDependency(YAxis.AxisDependency.RIGHT);
         set.setColor(ColorTemplate.getHoloBlue());
         set.setCircleColor(Color.WHITE);
         set.setLineWidth(2f);
@@ -121,15 +114,26 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             int inthours = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
             String hourString = String.format("%02d", inthours);
             XAxisTimeValue.add(hourString);
-
             data.addXValue(XAxisTimeValue.get(data.getXValCount()));
-            data.addEntry(new Entry((float) (Math.random() * 40) + 30f, set.getEntryCount()), 0);
+
+
+            BgReading mBgReading;
+            mBgReading = BgReading.last();
+            float bgvalue = 0;
+            if (mBgReading != null) {
+                double calculated_value = mBgReading.calculated_value;
+                bgvalue = (float) calculated_value;
+            } else {
+                bgvalue = 0;
+            }
+
+            data.addEntry(new Entry(bgvalue , set.getEntryCount()), 0);
 
             // let the chart know it's data has changed
             lineChart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            lineChart.setVisibleXRangeMaximum(120);
+            lineChart.setVisibleXRangeMaximum(400);
             // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -185,7 +189,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         private int specW, specH;
         private View myLayout;
-        private TextView day, month, hour, minute, second, sgv, delta, watch_time, timestamp;
+        private TextView sgv, delta, watch_time, timestamp;
         private final Point displaySize = new Point();
 
         /**
@@ -273,7 +277,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             leftAxis.setDrawGridLines(true);
 
             YAxis rightAxis = lineChart.getAxisRight();
-            rightAxis.setEnabled(false);
+            rightAxis.setEnabled(true);
 
         }
 
