@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.activeandroid.query.Select;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.SyncingService;
 import com.eveningoutpost.dexdrip.Models.ActiveBluetoothDevice;
+import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.Models.Calibration;
 import com.eveningoutpost.dexdrip.Models.Sensor;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
@@ -28,6 +29,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class ListenerService extends WearableListenerService implements
         GoogleApiClient.ConnectionCallbacks,
@@ -235,11 +237,19 @@ public class ListenerService extends WearableListenerService implements
                 if (path.equals((WEARABLE_DOUBLECALIBRATION))){
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("startdoublecalibration")) {
-                        double calValue1 = Double.parseDouble(dataMap.getString("doublecalibration1", ""));
-                        double calValue2 = Double.parseDouble(dataMap.getString("doublecalibration2", ""));
-                        Calibration.initialCalibration(calValue1, calValue2, this);
-                        toast.setText("Double Calibration values: " + calValue1 + " " + calValue2);
-                        toast.show();
+                        if (BgReading.latestUnCalculated(2).size() < 2) {
+                            toast.setText("Please wait, need 2 readings from transmitter first.");
+                            toast.show();
+                        } else {
+                            List<Calibration> calibrations = Calibration.latest(2);
+                            if (calibrations.size() < 2) {
+                                double calValue1 = Double.parseDouble(dataMap.getString("doublecalibration1", ""));
+                                double calValue2 = Double.parseDouble(dataMap.getString("doublecalibration2", ""));
+                                Calibration.initialCalibration(calValue1, calValue2, this);
+                                toast.setText("Double Calibration values: " + calValue1 + " " + calValue2);
+                                toast.show();
+                            }
+                        }
                     }
                 }
             }

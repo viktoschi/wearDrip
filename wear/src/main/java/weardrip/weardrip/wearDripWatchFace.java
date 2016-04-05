@@ -16,9 +16,7 @@ import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.text.format.DateFormat;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -43,7 +41,6 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -111,9 +108,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             Date date = new Date();   // given date
             Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
             calendar.setTime(date);   // assigns calendar to given date
+
             int inthours = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
-            String hourString = String.format("%02d", inthours);
-            XAxisTimeValue.add(hourString);
+            int intminute = calendar.get(Calendar.MINUTE);
+            String hourString = String.format("%02d:", inthours);
+            String minuteString = String.format("%02d", intminute);
+            XAxisTimeValue.add(hourString+minuteString);
             data.addXValue(XAxisTimeValue.get(data.getXValCount()));
 
 
@@ -265,7 +265,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
             XAxis xl = lineChart.getXAxis();
             xl.setTextColor(Color.WHITE);
-            xl.setDrawGridLines(false);
+            xl.setDrawGridLines(true);
             xl.setAvoidFirstLastClipping(true);
             xl.setSpaceBetweenLabels(5);
             xl.setEnabled(true);
