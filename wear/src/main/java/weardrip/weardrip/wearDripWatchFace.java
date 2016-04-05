@@ -58,37 +58,20 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
+    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
      * displayed in interactive mode.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
-    final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mTime.clear(intent.getStringExtra("time-zone"));
-            mTime.setToNow();
-        }
-    };
 
-    final BroadcastReceiver newDataReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            addEntry();
-            Log.v("bla", "newDataReceiver");
-        }
-    };
-    Time mTime;
-
-
-    boolean mRegisteredTimeZoneReceiver = false;
-    boolean mRegisterednewDataReceiver = false;
     @Override
     public Engine onCreateEngine() {
         CollectionServiceStarter.newStart(this);
         return new Engine();
     }
+
+
     boolean mLowBitAmbient;
 
     private LineChart lineChart;
@@ -191,10 +174,31 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         };
 
 
+        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mTime.clear(intent.getStringExtra("time-zone"));
+                mTime.setToNow();
+            }
+        };
 
+        boolean mRegisteredTimeZoneReceiver = false;
+
+
+        final BroadcastReceiver newDataReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                addEntry();
+                Log.v("bla", "newDataReceiver");
+            }
+        };
+
+        boolean mRegisterednewDataReceiver = false;
 
         boolean mAmbient;
 
+
+        Time mTime;
 
         float mXOffset = 0;
         float mYOffset = 0;
@@ -310,7 +314,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 mTime.setToNow();
             } else {
                 unregisterReceiver();
-
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -318,29 +321,36 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             updateTimer();
         }
 
-        private void registerReceiver() {
+        private void unregisterReceiver() {
             if (mRegisteredTimeZoneReceiver) {
                 mRegisteredTimeZoneReceiver = false;
                 wearDripWatchFace.this.unregisterReceiver(mTimeZoneReceiver);
+                Log.v("unregisterReceiver", "mRegisteredTimeZoneReceiver");
 
             }
+
             if (mRegisterednewDataReceiver) {
                 mRegisterednewDataReceiver = false;
                 wearDripWatchFace.this.unregisterReceiver(newDataReceiver);
+                Log.v("unregisterReceiver", "mRegisterednewDataReceiver");
 
             }
         }
 
-        private void unregisterReceiver() {
+        private void registerReceiver() {
             if (!mRegisteredTimeZoneReceiver) {
                 mRegisteredTimeZoneReceiver = true;
                 IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
                 wearDripWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+                Log.v("registerReceiver", "mRegisteredTimeZoneReceiver");
+
             }
+
             if (!mRegisterednewDataReceiver) {
                 mRegisterednewDataReceiver = true;
                 IntentFilter filter = new IntentFilter(Intents.ACTION_NEW_BG_ESTIMATE_NO_DATA);
                 wearDripWatchFace.this.registerReceiver(newDataReceiver, filter);
+                Log.v("registerReceiver", "mRegisterednewDataReceiver");
             }
         }
 
@@ -394,7 +404,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             updateTimer();
         }
 
-
         String bgvalue;
         public void showBG() {
             BgReading mBgReading;
@@ -407,8 +416,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 bgvalue = "n/a";
             }
         }
-
-
 
         String timestamplastreading;
         public void getTimestampLastreading() {
