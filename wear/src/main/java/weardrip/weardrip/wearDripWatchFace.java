@@ -104,7 +104,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             @Override
             public void onReceive(Context context, Intent intent) {
                 showBG();
-                getTimestampLastreading();
                 unitizedDeltaString();
                 addEntry();
                 invalidate();
@@ -419,6 +418,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             delta.setText(deltalastreading);
             sgv.setText(bgvalue);
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
+            getTimestampLastreading();
             timestamp.setText(timestamplastreading + "′");
 
             if (!mAmbient) {
