@@ -343,12 +343,11 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
                 wearDripWatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
                 Log.v("registerReceiver", "mRegisteredTimeZoneReceiver");
-
             }
 
             if (!mRegisterednewDataReceiver) {
                 mRegisterednewDataReceiver = true;
-                IntentFilter filter = new IntentFilter(Intents.ACTION_NEW_BG_ESTIMATE_NO_DATA);
+                IntentFilter filter = new IntentFilter(Intents.ACTION_NEW_BG_ESTIMATE);
                 wearDripWatchFace.this.registerReceiver(newDataReceiver, filter);
                 Log.v("registerReceiver", "mRegisterednewDataReceiver");
             }
