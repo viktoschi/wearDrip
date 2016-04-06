@@ -30,6 +30,7 @@ import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.eveningoutpost.dexdrip.UtilityModels.Intents;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -179,12 +180,10 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             //lineChart.setBackgroundColor(-1);
             lineChart.invalidate();
             lineChart.setOnChartValueSelectedListener(this);
-            // enable touch gestures
             lineChart.setTouchEnabled(false);
-            // enable scaling and dragging
             lineChart.setDragEnabled(false);
-            lineChart.setScaleEnabled(false);
-            lineChart.setDrawGridBackground(false);
+            lineChart.setScaleXEnabled(true);
+            lineChart.setScaleYEnabled(false);
             // if disabled, scaling can be done on x- and y-axis separately
             lineChart.setPinchZoom(false);
             LineData data = new LineData();
@@ -197,24 +196,39 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             // l.setPosition(LegendPosition.LEFT_OF_CHART);
             l.setForm(Legend.LegendForm.LINE);
             l.setTextColor(Color.WHITE);
+            // x axis setup
             XAxis xl = lineChart.getXAxis();
             xl.setTextColor(Color.WHITE);
             xl.setDrawGridLines(true);
             xl.setAvoidFirstLastClipping(true);
             xl.setSpaceBetweenLabels(5);
             xl.setEnabled(true);
+            // y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.WHITE);
-            leftAxis.setAxisMaxValue(100f);
+            leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
-            leftAxis.setDrawGridLines(true);
-            YAxis rightAxis = lineChart.getAxisRight();
-            rightAxis.setEnabled(true);
+            leftAxis.setDrawGridLines(false);
+            leftAxis.setStartAtZero(true);
+
+            LimitLine max = new LimitLine(150f);
+            max.enableDashedLine(10f, 10f, 0f);
+
+            LimitLine min = new LimitLine(50f);
+            min.enableDashedLine(10f, 10f, 0f);
+            // reset all limit lines to avoid overlapping lines
+            leftAxis.removeAllLimitLines();
+            leftAxis.addLimitLine(max);
+            leftAxis.addLimitLine(min);
+
+
+            lineChart.invalidate();
+
         }
 
         private LineDataSet createSet() {
             LineDataSet set = new LineDataSet(null, "Dynamic Data");
-            set.setAxisDependency(YAxis.AxisDependency.RIGHT);
+            set.setAxisDependency(YAxis.AxisDependency.LEFT);
             set.setColor(ColorTemplate.getHoloBlue());
             set.setCircleColor(Color.WHITE);
             set.setLineWidth(2f);
@@ -228,15 +242,20 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             return set;
         }
 
-        public void addEntry() {
+        private void addEntry() {
+
             LineData data = lineChart.getData();
-            if (data != null) {
+
+            if(data != null) {
+
                 ILineDataSet set = data.getDataSetByIndex(0);
                 // set.addEntry(...); // can be called as well
+
                 if (set == null) {
                     set = createSet();
                     data.addDataSet(set);
                 }
+
                 // add a new x-value first
                 Date date = new Date();   // given date
                 Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
@@ -247,17 +266,21 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 String minuteString = String.format("%02d", intminute);
                 XAxisTimeValue.add(hourString+minuteString);
                 data.addXValue(XAxisTimeValue.get(data.getXValCount()));
-                data.addEntry(new Entry((float)calculated_value, set.getEntryCount()), 0);
+
+                // choose a random dataSet
+                data.addEntry(new Entry((float) calculated_value, set.getEntryCount()), 0);
+
+                //int randomDataSetIndex = (int) (Math.random() * data.getDataSetCount());
+                //data.addEntry(new Entry((float) (Math.random() * 10) + 50f, set.getEntryCount()), randomDataSetIndex);
+
                 // let the chart know it's data has changed
                 lineChart.notifyDataSetChanged();
-                // limit the number of visible entries
-                lineChart.setVisibleXRangeMaximum(400);
-                // mChart.setVisibleYRange(30, AxisDependency.LEFT);
-                // move to the latest entry
-                lineChart.moveViewToX(data.getXValCount() - 121);
-                // this automatically refreshes the chart (calls invalidate())
-                // mChart.moveViewTo(data.getXValCount()-7, 55f,
-                // AxisDependency.LEFT);
+
+                lineChart.setVisibleXRangeMaximum(6);
+                lineChart.setVisibleYRangeMaximum(15, YAxis.AxisDependency.LEFT);
+//
+//            // this automatically refreshes the chart (calls invalidate())
+                lineChart.moveViewTo(data.getXValCount()-7, 50f, YAxis.AxisDependency.LEFT);
             }
         }
 
@@ -327,7 +350,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 mTime.clear(TimeZone.getDefault().getID());
                 mTime.setToNow();
             } else {
-                unregisterReceiver();
+                registerReceiver();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
