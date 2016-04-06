@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.BaseColumns;
 import android.util.Log;
-//import com.eveningoutpost.dexdrip.Models.UserError.Log;
 
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
@@ -14,10 +13,8 @@ import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.EGVRecord;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.records.SensorRecord;
-//import com.eveningoutpost.dexdrip.ShareModels.ShareUploadableBg;
 import com.eveningoutpost.dexdrip.UtilityModels.BgSendQueue;
 import com.eveningoutpost.dexdrip.UtilityModels.Constants;
-//import com.eveningoutpost.dexdrip.UtilityModels.Notifications;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -29,6 +26,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
+import weardrip.weardrip.wearDripWatchFace;
+
+//import com.eveningoutpost.dexdrip.Models.UserError.Log;
+//import com.eveningoutpost.dexdrip.ShareModels.ShareUploadableBg;
 
 @Table(name = "BgReadings", id = BaseColumns._ID)
 public class BgReading extends Model {
@@ -254,7 +256,7 @@ public class BgReading extends Model {
             bgReading.save();
             bgReading.find_new_curve();
             bgReading.find_new_raw_curve();
-            //context.startService(new Intent(context, Notifications.class));
+            context.startService(new Intent(context, wearDripWatchFace.class));
             BgSendQueue.handleNewBgReading(bgReading, "create", context);
         }
     }
@@ -364,7 +366,7 @@ public class BgReading extends Model {
 
             bgReading.save();
             bgReading.perform_calculations();
-            //context.startService(new Intent(context, Notifications.class));
+            context.startService(new Intent(context, wearDripWatchFace.class));
             BgSendQueue.handleNewBgReading(bgReading, "create", context);
         }
 
@@ -454,7 +456,7 @@ public class BgReading extends Model {
     }
 
     public String slopeArrow(){
-        return slopeToArrowSymbol(this.calculated_value_slope * 60000);
+        return slopeToArrowSymbol(this.calculated_value_slope*60000);
     }
 
     public String slopeName() {
@@ -849,7 +851,7 @@ public class BgReading extends Model {
         Log.d(TAG_ALERT, "checkForRisingAllert will check for rate of " + friseRate);
 
         boolean riseAlert = checkForDropRiseAllert(friseRate, false);
-       // Notifications.RisingAlert(context, riseAlert);
+        //Notifications.RisingAlert(context, riseAlert);
     }
 
 
