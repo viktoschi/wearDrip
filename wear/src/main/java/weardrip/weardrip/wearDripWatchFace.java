@@ -175,41 +175,50 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         public void SetupChart() {
             lineChart = (LineChart) myLayout.findViewById(R.id.chart);
             lineChart.setDescription("");
+            lineChart.setDrawBorders(false);
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
             //lineChart.setBackgroundColor(-1);
-            lineChart.invalidate();
             lineChart.setOnChartValueSelectedListener(this);
             lineChart.setTouchEnabled(false);
             lineChart.setDragEnabled(false);
-            lineChart.setScaleXEnabled(true);
-            lineChart.setScaleYEnabled(false);
-            // if disabled, scaling can be done on x- and y-axis separately
             lineChart.setPinchZoom(false);
+            lineChart.setScaleXEnabled(true);
+            lineChart.setScaleYEnabled(true);
+            lineChart.invalidate();
             LineData data = new LineData();
             data.setValueTextColor(Color.WHITE);
             // add empty data
             lineChart.setData(data);
             // get the legend (only possible after setting data)
             Legend l = lineChart.getLegend();
-            // modify the legend ...
-            // l.setPosition(LegendPosition.LEFT_OF_CHART);
-            l.setForm(Legend.LegendForm.LINE);
-            l.setTextColor(Color.WHITE);
+            l.setEnabled(false);
             // x axis setup
             XAxis xl = lineChart.getXAxis();
             xl.setTextColor(Color.WHITE);
-            xl.setDrawGridLines(true);
-            xl.setAvoidFirstLastClipping(true);
+            xl.setDrawGridLines(false);
+            xl.setAvoidFirstLastClipping(false);
             xl.setSpaceBetweenLabels(5);
-            xl.setEnabled(true);
+            xl.setEnabled(false);
+            xl.setDrawAxisLine(false);
+            xl.removeAllLimitLines();
+
+
             // y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.WHITE);
+            //leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+            leftAxis.setLabelCount(3, true);
+
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
             leftAxis.setDrawGridLines(false);
             leftAxis.setStartAtZero(true);
+            leftAxis.setEnabled(true);
+            leftAxis.setDrawAxisLine(false);
+            leftAxis.setDrawZeroLine(false);
+            leftAxis.setGranularityEnabled(false);
+
 
             LimitLine max = new LimitLine(150f);
             max.enableDashedLine(10f, 10f, 0f);
@@ -221,13 +230,11 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             leftAxis.addLimitLine(max);
             leftAxis.addLimitLine(min);
 
-
             lineChart.invalidate();
-
         }
 
         private LineDataSet createSet() {
-            LineDataSet set = new LineDataSet(null, "Dynamic Data");
+            LineDataSet set = new LineDataSet(null, "BG Data");
             set.setAxisDependency(YAxis.AxisDependency.LEFT);
             set.setColor(ColorTemplate.getHoloBlue());
             set.setCircleColor(Color.WHITE);
@@ -264,7 +271,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 int intminute = calendar.get(Calendar.MINUTE);
                 String hourString = String.format("%02d:", inthours);
                 String minuteString = String.format("%02d", intminute);
-                XAxisTimeValue.add(hourString+minuteString);
+                XAxisTimeValue.add(hourString + minuteString);
                 data.addXValue(XAxisTimeValue.get(data.getXValCount()));
 
                 // choose a random dataSet
@@ -276,11 +283,11 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 // let the chart know it's data has changed
                 lineChart.notifyDataSetChanged();
 
-                lineChart.setVisibleXRangeMaximum(6);
-                lineChart.setVisibleYRangeMaximum(15, YAxis.AxisDependency.LEFT);
-//
-//            // this automatically refreshes the chart (calls invalidate())
-                lineChart.moveViewTo(data.getXValCount()-7, 50f, YAxis.AxisDependency.LEFT);
+                //lineChart.setVisibleXRangeMaximum(6);
+                lineChart.setVisibleYRangeMaximum((float)calculated_value, YAxis.AxisDependency.LEFT);
+
+                // this automatically refreshes the chart (calls invalidate())
+                 lineChart.moveViewTo(data.getXValCount(), (float)calculated_value, YAxis.AxisDependency.LEFT);
             }
         }
 
