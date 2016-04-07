@@ -17,6 +17,7 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
@@ -52,6 +53,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -450,6 +454,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
             getTimestampLastreading();
             timestamp.setText(timestamplastreading + "′");
+            realmioquerry();
 
             if (!mAmbient) {
                 //second.setText(String.format("%02d", mTime.second));
@@ -494,6 +499,42 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         }
 
+        Realm realm = Realm.getInstance(getApplicationContext());
+        public void realmiodb(){
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    Contact contact = realm.createObject(Contact.class);
+                    contact.setName("Contact's Name");
+                    contact.setEmail("Contact@hostname.com");
+                    contact.setAddress("Contact's Address");
+                    contact.setAge(20);
+                }
+            }, new Realm.Transaction.Callback() {
+                @Override
+                public void onSuccess() {
+                    //Contact saved
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    //Transaction is rolled-back
+                }
+            });
+            Log.v("realmio", "add things to DB");
+        }
+
+        public void realmioquerry() {
+            //Query to retrieve all Contacts
+            RealmQuery<Contact> query = realm.where(Contact.class);
+            // Add query conditions: age over 18
+            query.greaterThan("age", 18);
+            // Execute the query:
+            RealmResults<Contact> result = query.findAll();
+            //Contacts stored in result
+            Log.v("realmioquerry: ", String.valueOf(result));
+        }
+
         @Override
         public void onTapCommand(
                 @TapType int tapType, int x, int y, long eventTime) {
@@ -501,6 +542,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
+                    realmiodb();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
