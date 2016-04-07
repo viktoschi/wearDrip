@@ -31,4 +31,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.android.support:design:24.0.0-alpha1'
     compile 'com.github.jaydeep17:datetimepicker:0.0.4'
+    compile 'io.realm:realm-android:0.87.0'
 }
