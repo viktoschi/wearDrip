@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +14,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -25,11 +27,11 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.eveningoutpost.dexdrip.UtilityModels.Intents;
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -38,9 +40,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.data.realm.implementation.RealmLineData;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.ExclusionStrategy;
@@ -50,7 +50,6 @@ import com.google.gson.GsonBuilder;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -62,8 +61,6 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
-import io.realm.RealmQuery;
-import io.realm.RealmResults;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -82,7 +79,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements OnChartValueSelectedListener {
+    private class Engine extends CanvasWatchFaceService.Engine implements OnChartValueSelectedListener,
+            SharedPreferences.OnSharedPreferenceChangeListener {
         static final int MSG_UPDATE_TIME = 0;
 
         /**
@@ -118,7 +116,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             public void onReceive(Context context, Intent intent) {
                 showBG();
                 unitizedDeltaString();
-                //addEntry();
                 refreshData();
                 GsonBG();
                 invalidate();
@@ -134,7 +131,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private LineChart lineChart;
         ArrayList<String> XAxisTimeValue = new ArrayList<String>();
 
-
         String timestamplastreading = "--";
         String bgvalue = "n/a";
         String deltalastreading = "---";
@@ -149,6 +145,10 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private View myLayout;
         private TextView sgv, delta, watch_time, timestamp;
         private final Point displaySize = new Point();
+
+        protected SharedPreferences sharedPrefs;
+
+        Realm realm;
 
 
         /**
@@ -184,11 +184,13 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             delta = (TextView) myLayout.findViewById(R.id.delta);
             timestamp = (TextView) myLayout.findViewById(R.id.timestamp);
             watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
+
             SetupChart();
+            refreshData();
+
+            sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         }
-
-        Realm realm;
-
 
         public void SetupChart() {
             lineChart = (LineChart) myLayout.findViewById(R.id.chart);
@@ -196,9 +198,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setDrawBorders(false);
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
-            //lineChart.setBackgroundColor(-1);
             lineChart.setOnChartValueSelectedListener(this);
-            lineChart.setTouchEnabled(false);
+            lineChart.setTouchEnabled(true);
             lineChart.setDragEnabled(false);
             lineChart.setPinchZoom(false);
             lineChart.setScaleXEnabled(true);
@@ -226,8 +227,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             //left y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.WHITE);
-            //leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-            leftAxis.setLabelCount(7, true);
+            leftAxis.setLabelCount(6, true);
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
             leftAxis.setDrawGridLines(false);
@@ -236,15 +236,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             leftAxis.setDrawAxisLine(false);
             leftAxis.setDrawZeroLine(false);
             leftAxis.setGranularityEnabled(false);
-
-
+            //define min max line
             LimitLine max = new LimitLine(150f);
             max.enableDashedLine(10f, 10f, 0f);
-
             LimitLine min = new LimitLine(50f);
             min.enableDashedLine(10f, 10f, 0f);
             // reset all limit lines to avoid overlapping lines
             leftAxis.removeAllLimitLines();
+            //add min max line
             leftAxis.addLimitLine(max);
             leftAxis.addLimitLine(min);
 
@@ -257,7 +256,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             set.setColor(ColorTemplate.getHoloBlue());
             set.setCircleColor(Color.WHITE);
             set.setLineWidth(2f);
-            set.setCircleRadius(4f);
+            set.setCircleRadius(3f);
             set.setFillAlpha(65);
             set.setFillColor(ColorTemplate.getHoloBlue());
             set.setHighLightColor(Color.rgb(244, 117, 117));
@@ -267,8 +266,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             return set;
         }
 
-        private static final int VISIBLE_NUM = 3;
-
+        public int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
         private void refreshData() {
             LineData data = lineChart.getData();
             if(data != null) {
@@ -278,7 +276,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                     data.addDataSet(set);
                 }
 
-                if(set.getEntryCount() == VISIBLE_NUM) {
+                if(set.getEntryCount() == timeframe) {
                     data.removeXValue(0);
                     set.removeEntry(0);
                     for (Entry entry : set.getYVals()) {
@@ -390,6 +388,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
+            unregisterReceiver();
+
         }
 
         @Override
@@ -496,7 +496,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
             getTimestampLastreading();
             timestamp.setText(timestamplastreading + "′");
-            //realmioquerry();
 
             if (!mAmbient) {
                 //second.setText(String.format("%02d", mTime.second));
@@ -533,7 +532,18 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-
+            final Toast toast = Toast.makeText(getBaseContext(), "", Toast.LENGTH_LONG);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    toast.cancel();
+                }
+            }, 1000);
+            toast.setText("ValueSelected: " + e.toString());
+            toast.show();
+            Log.i("Entry selected", e.toString());
+            Log.i("LOWHIGH", "low: " + lineChart.getLowestVisibleXIndex() + ", high: " + lineChart.getHighestVisibleXIndex());
+            Log.i("MIN MAX", "xmin: " + lineChart.getXChartMin() + ", xmax: " + lineChart.getXChartMax() + ", ymin: " + lineChart.getYChartMin() + ", ymax: " + lineChart.getYChartMax());
         }
 
         @Override
@@ -555,6 +565,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                     super.onTapCommand(tapType, x, y, eventTime);
                     break;
             }
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
+            invalidate();
         }
     }
 }

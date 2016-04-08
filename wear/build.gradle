@@ -32,5 +32,6 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile 'io.realm:realm-android:0.87.0'
+    compile 'me.denley.wearpreferenceactivity:wearpreferenceactivity:0.5.0'
     compile project(':ActiveAndroid')
 }

@@ -4,12 +4,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 
-/**
- * Created by Leonie1 on 28.03.2016.
- */
-public class WatchfacePrefernces extends PreferenceActivity {
+import preference.WearPreferenceActivity;
+
+
+public class WatchfacePrefernces extends WearPreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
