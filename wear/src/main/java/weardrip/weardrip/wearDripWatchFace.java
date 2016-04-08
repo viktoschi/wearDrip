@@ -27,7 +27,6 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
@@ -146,6 +145,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private TextView sgv, delta, watch_time, timestamp;
         private final Point displaySize = new Point();
         public int timeframe;
+        public Boolean chartcubic = false;
 
         protected SharedPreferences sharedPrefs;
 
@@ -191,7 +191,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
             SetupChart();
-            refreshData();
         }
 
         public void SetupChart() {
@@ -201,13 +200,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
             lineChart.setOnChartValueSelectedListener(this);
-            lineChart.setTouchEnabled(true);
+            lineChart.setTouchEnabled(false);
             lineChart.setDragEnabled(false);
             lineChart.setPinchZoom(false);
             lineChart.setScaleXEnabled(true);
             lineChart.setScaleYEnabled(true);
             lineChart.invalidate();
             LineData data = new LineData();
+            data.setValueTextColor(Color.WHITE);
             // add empty data
             lineChart.setData(data);
             // get the legend (only possible after setting data)
@@ -215,6 +215,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             l.setEnabled(false);
             // x axis setup
             XAxis xl = lineChart.getXAxis();
+            xl.setTextColor(Color.WHITE);
             xl.setDrawGridLines(false);
             xl.setAvoidFirstLastClipping(false);
             xl.setSpaceBetweenLabels(3);
@@ -226,11 +227,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             rightAxis.setEnabled(false);
             //left y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
+            leftAxis.setTextColor(Color.WHITE);
             leftAxis.setLabelCount(6, true);
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
             leftAxis.setDrawGridLines(false);
-            leftAxis.setStartAtZero(true);
+            leftAxis.setStartAtZero(false);
             leftAxis.setEnabled(true);
             leftAxis.setDrawAxisLine(false);
             leftAxis.setDrawZeroLine(false);
@@ -252,17 +254,22 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private LineDataSet createSet() {
             LineDataSet set = new LineDataSet(null, "BG Data");
             set.setAxisDependency(YAxis.AxisDependency.LEFT);
+            set.setColor(ColorTemplate.getHoloBlue());
+            set.setCircleColor(Color.WHITE);
             set.setLineWidth(2f);
             set.setCircleRadius(3f);
             set.setFillAlpha(65);
+            set.setFillColor(ColorTemplate.getHoloBlue());
+            set.setHighLightColor(Color.rgb(244, 117, 117));
+            set.setValueTextColor(Color.WHITE);
             set.setValueTextSize(9f);
             set.setDrawValues(false);
             //set.setColors(ColorTemplate.COLORFUL_COLORS);
             //set.setColors(ColorTemplate.VORDIPLOM_COLORS);
             //set.setColors(ColorTemplate.JOYFUL_COLORS);
-            set.setColors(ColorTemplate.LIBERTY_COLORS);
+            //set.setColors(ColorTemplate.LIBERTY_COLORS);
             //set.setColors(ColorTemplate.PASTEL_COLORS);
-            set.setDrawCubic(true);
+            //set.setDrawCubic(chartcubic);
             return set;
         }
 
@@ -531,15 +538,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-            final Toast toast = Toast.makeText(getBaseContext(), "", Toast.LENGTH_LONG);
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    toast.cancel();
-                }
-            }, 1000);
-            toast.setText("ValueSelected: " + e.toString());
-            toast.show();
             Log.i("Entry selected", e.toString());
             Log.i("LOWHIGH", "low: " + lineChart.getLowestVisibleXIndex() + ", high: " + lineChart.getHighestVisibleXIndex());
             Log.i("MIN MAX", "xmin: " + lineChart.getXChartMin() + ", xmax: " + lineChart.getXChartMax() + ", ymin: " + lineChart.getYChartMin() + ", ymax: " + lineChart.getYChartMax());
@@ -557,6 +555,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
+                    Log.v("baguette","");
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
@@ -569,7 +568,10 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
+            chartcubic = sharedPrefs.getBoolean("chart_cubic", true);
             invalidate();
+            lineChart.invalidate();
+
         }
     }
 }
