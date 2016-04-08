@@ -50,6 +50,7 @@ import com.google.gson.GsonBuilder;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -117,7 +118,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             public void onReceive(Context context, Intent intent) {
                 showBG();
                 unitizedDeltaString();
-                addEntry();
+                //addEntry();
+                refreshData();
                 GsonBG();
                 invalidate();
             }
@@ -183,8 +185,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             timestamp = (TextView) myLayout.findViewById(R.id.timestamp);
             watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
             SetupChart();
-
-
         }
 
         Realm realm;
@@ -216,23 +216,18 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             xl.setTextColor(Color.WHITE);
             xl.setDrawGridLines(false);
             xl.setAvoidFirstLastClipping(false);
-            xl.setSpaceBetweenLabels(5);
+            xl.setSpaceBetweenLabels(3);
             xl.setEnabled(true);
             xl.setDrawAxisLine(false);
             xl.removeAllLimitLines();
-
-
+            //right y axis setup
             YAxis rightAxis = lineChart.getAxisRight();
             rightAxis.setEnabled(false);
-
-
-
-            // y axis setup
+            //left y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.WHITE);
             //leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
             leftAxis.setLabelCount(7, true);
-
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
             leftAxis.setDrawGridLines(false);
@@ -261,7 +256,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             set.setAxisDependency(YAxis.AxisDependency.LEFT);
             set.setColor(ColorTemplate.getHoloBlue());
             set.setCircleColor(Color.WHITE);
-            set.setDrawCubic(true);
             set.setLineWidth(2f);
             set.setCircleRadius(4f);
             set.setFillAlpha(65);
@@ -273,45 +267,43 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             return set;
         }
 
-        private void addEntry() {
+        private static final int VISIBLE_NUM = 3;
 
+        private void refreshData() {
             LineData data = lineChart.getData();
-
             if(data != null) {
-
-                ILineDataSet set = data.getDataSetByIndex(0);
-                // set.addEntry(...); // can be called as well
-
+                LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
                 if (set == null) {
                     set = createSet();
                     data.addDataSet(set);
                 }
 
-                // add a new x-value first
-                Date date = new Date();   // given date
-                Calendar calendar = GregorianCalendar.getInstance(); // creates a new calendar instance
-                calendar.setTime(date);   // assigns calendar to given date
-                int inthours = calendar.get(Calendar.HOUR_OF_DAY); // gets hour in 24h format
+                if(set.getEntryCount() == VISIBLE_NUM) {
+                    data.removeXValue(0);
+                    set.removeEntry(0);
+                    for (Entry entry : set.getYVals()) {
+                        entry.setXIndex(entry.getXIndex() - 1);
+                    }
+                }
+
+                // add x-value
+                Date date = new Date();
+                Calendar calendar = GregorianCalendar.getInstance();
+                calendar.setTime(date);
+                int inthours = calendar.get(Calendar.HOUR_OF_DAY);
                 int intminute = calendar.get(Calendar.MINUTE);
                 String hourString = String.format("%02d:", inthours);
                 String minuteString = String.format("%02d", intminute);
                 XAxisTimeValue.add(hourString + minuteString);
                 data.addXValue(XAxisTimeValue.get(data.getXValCount()));
 
-                // choose a random dataSet
+                // choose a dataSet
                 data.addEntry(new Entry((float) calculated_value, set.getEntryCount()), 0);
-
-                //int randomDataSetIndex = (int) (Math.random() * data.getDataSetCount());
-                //data.addEntry(new Entry((float) (Math.random() * 10) + 50f, set.getEntryCount()), randomDataSetIndex);
-
-                // let the chart know it's data has changed
                 lineChart.notifyDataSetChanged();
 
-                //lineChart.setVisibleXRangeMaximum(6);
-                lineChart.setVisibleYRangeMaximum((float)calculated_value, YAxis.AxisDependency.LEFT);
-
+                lineChart.setVisibleYRangeMaximum((float) calculated_value, YAxis.AxisDependency.LEFT);
                 // this automatically refreshes the chart (calls invalidate())
-                 lineChart.moveViewTo(data.getXValCount(), (float)calculated_value, YAxis.AxisDependency.LEFT);
+                lineChart.moveViewTo(data.getXValCount(), (float) calculated_value, YAxis.AxisDependency.LEFT);
             }
         }
 
