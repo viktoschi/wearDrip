@@ -145,6 +145,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private View myLayout;
         private TextView sgv, delta, watch_time, timestamp;
         private final Point displaySize = new Point();
+        public int timeframe;
 
         protected SharedPreferences sharedPrefs;
 
@@ -185,11 +186,12 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             timestamp = (TextView) myLayout.findViewById(R.id.timestamp);
             watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
 
+            sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
+            sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+
             SetupChart();
             refreshData();
-
-            sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         }
 
         public void SetupChart() {
@@ -266,7 +268,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             return set;
         }
 
-        public int timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
         private void refreshData() {
             LineData data = lineChart.getData();
             if(data != null) {

@@ -1,12 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-      <ListPreference
-                android:key="chart_timeframe"
-                android:title="Chart Timeframe"
-                android:summary="Chart Timeframe"
-                android:entries="@array/chart_timeframe"
-                android:entryValues="@array/chart_timeframe_values"
-                android:defaultValue="12" />
-
+    <ListPreference
+        android:key="chart_timeframe"
+        android:title="Chart Timeframe"
+        android:entries="@array/chart_timeframe"
+        android:entryValues="@array/chart_timeframe_values"
+        android:defaultValue="12"
+        app:wear_entryIcons="@android:drawable/ic_menu_recent_history"
+        android:icon="@android:drawable/ic_menu_recent_history" />
 </PreferenceScreen>
