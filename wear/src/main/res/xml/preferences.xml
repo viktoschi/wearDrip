@@ -2,10 +2,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ListPreference
         android:key="chart_timeframe"
-        android:title="Chart Timeframe"
+        android:title="@string/title_chart_timeframe"
         android:entries="@array/chart_timeframe"
+        android:icon="@drawable/ic_history_white_24dp"
         android:entryValues="@array/chart_timeframe_values"
         app:wear_entryIcons="@array/icons_chart_timeframe"
-        android:defaultValue="12"
-        android:icon="@drawable/ic_history_black_24dp" />
+        android:defaultValue="12"/>
+
+    <PreferenceScreen
+        android:title="@string/title_notifications"
+        android:icon="@drawable/ic_notifications_white_24dp">
+
+        <SwitchPreference
+            android:key="notifications"
+            android:title="@string/title_notifications"
+            android:icon="@drawable/ic_notifications_white_24dp"
+            app:wear_iconOn="@drawable/ic_notifications_white_24dp"
+            app:wear_iconOff="@drawable/ic_notifications_off_white_24dp"
+            android:defaultValue="true"
+            />
+
+        <SwitchPreference
+            android:key="vibration"
+            android:title="@string/title_vibration"
+            android:icon="@drawable/ic_vibration_white_24dp"
+            android:defaultValue="true"
+            />
+
+    </PreferenceScreen>
+
 </PreferenceScreen>
+

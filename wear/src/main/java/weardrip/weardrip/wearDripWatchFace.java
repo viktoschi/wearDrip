@@ -208,7 +208,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setScaleYEnabled(true);
             lineChart.invalidate();
             LineData data = new LineData();
-            data.setValueTextColor(Color.WHITE);
             // add empty data
             lineChart.setData(data);
             // get the legend (only possible after setting data)
@@ -216,7 +215,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             l.setEnabled(false);
             // x axis setup
             XAxis xl = lineChart.getXAxis();
-            xl.setTextColor(Color.WHITE);
             xl.setDrawGridLines(false);
             xl.setAvoidFirstLastClipping(false);
             xl.setSpaceBetweenLabels(3);
@@ -228,7 +226,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             rightAxis.setEnabled(false);
             //left y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
-            leftAxis.setTextColor(Color.WHITE);
             leftAxis.setLabelCount(6, true);
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
@@ -255,16 +252,17 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private LineDataSet createSet() {
             LineDataSet set = new LineDataSet(null, "BG Data");
             set.setAxisDependency(YAxis.AxisDependency.LEFT);
-            set.setColor(ColorTemplate.getHoloBlue());
-            set.setCircleColor(Color.WHITE);
             set.setLineWidth(2f);
             set.setCircleRadius(3f);
             set.setFillAlpha(65);
-            set.setFillColor(ColorTemplate.getHoloBlue());
-            set.setHighLightColor(Color.rgb(244, 117, 117));
-            set.setValueTextColor(Color.WHITE);
             set.setValueTextSize(9f);
             set.setDrawValues(false);
+            //set.setColors(ColorTemplate.COLORFUL_COLORS);
+            //set.setColors(ColorTemplate.VORDIPLOM_COLORS);
+            //set.setColors(ColorTemplate.JOYFUL_COLORS);
+            set.setColors(ColorTemplate.LIBERTY_COLORS);
+            //set.setColors(ColorTemplate.PASTEL_COLORS);
+            set.setDrawCubic(true);
             return set;
         }
 

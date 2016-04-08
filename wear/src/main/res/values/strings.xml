@@ -3,6 +3,9 @@
 
     <string name="app_name">wearDrip</string>
     <string name="wf1">wearDrip Layout Watchface</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_vibration">Vibration</string>
+    <string name="title_chart_timeframe">Chart Timeframe</string>
 
     <string-array name="chart_timeframe">
             <item>1 hour</item>
@@ -21,11 +24,11 @@
     </string-array>
 
     <array name="icons_chart_timeframe">
-        <item>@drawable/ic_history_black_24dp</item>
-        <item>@drawable/ic_history_black_24dp</item>
-        <item>@drawable/ic_history_black_24dp</item>
-        <item>@drawable/ic_history_black_24dp</item>
-        <item>@drawable/ic_history_black_24dp</item>
+        <item>@drawable/ic_history_white_24dp</item>
+        <item>@drawable/ic_history_white_24dp</item>
+        <item>@drawable/ic_history_white_24dp</item>
+        <item>@drawable/ic_history_white_24dp</item>
+        <item>@drawable/ic_history_white_24dp</item>
     </array>
 
 </resources>
