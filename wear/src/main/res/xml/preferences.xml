@@ -1,13 +1,31 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceScreen
+        android:title="@string/title_chart_settings"
+        android:icon="@drawable/ic_timeline_white_24dp">
     <ListPreference
         android:key="chart_timeframe"
         android:title="@string/title_chart_timeframe"
         android:entries="@array/chart_timeframe"
         android:icon="@drawable/ic_history_white_24dp"
         android:entryValues="@array/chart_timeframe_values"
+        android:defaultValue="12"
         app:wear_entryIcons="@array/icons_chart_timeframe"
-        android:defaultValue="12"/>
+        />
+        <SwitchPreference
+            android:key="chart_cubic"
+            android:title="@string/title_chart_cubic"
+            android:summaryOn="@string/chart_cubic_show"
+            android:summaryOff="@string/chart_cubic__hide"
+            android:icon="@drawable/ic_multiline_chart_white_24dp"
+            android:defaultValue="true"
+            app:wear_summaryOn="@string/chart_cubic_show"
+            app:wear_summaryOff="@string/chart_cubic__hide"
+            app:wear_iconOn="@drawable/ic_multiline_chart_white_24dp"
+            app:wear_iconOff="@drawable/ic_timeline_white_24dp"
+            />
+    </PreferenceScreen>
 
     <PreferenceScreen
         android:title="@string/title_notifications"
@@ -17,9 +35,9 @@
             android:key="notifications"
             android:title="@string/title_notifications"
             android:icon="@drawable/ic_notifications_white_24dp"
+            android:defaultValue="true"
             app:wear_iconOn="@drawable/ic_notifications_white_24dp"
             app:wear_iconOff="@drawable/ic_notifications_off_white_24dp"
-            android:defaultValue="true"
             />
 
         <SwitchPreference

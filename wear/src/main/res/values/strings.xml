@@ -6,6 +6,11 @@
     <string name="title_notifications">Notifications</string>
     <string name="title_vibration">Vibration</string>
     <string name="title_chart_timeframe">Chart Timeframe</string>
+    <string name="title_chart_settings">Chart Settings</string>
+    <string name="title_chart_cubic">Draw cubic Chart</string>
+    <string name="chart_cubic_show">Draw cubic Chart</string>
+    <string name="chart_cubic__hide">Draw not as cubic Chart</string>
+
 
     <string-array name="chart_timeframe">
             <item>1 hour</item>
