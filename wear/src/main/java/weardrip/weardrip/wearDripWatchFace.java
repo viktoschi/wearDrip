@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.eveningoutpost.dexdrip.UtilityModels.Intents;
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -37,10 +38,15 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.realm.implementation.RealmLineData;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -54,6 +60,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmObject;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
@@ -111,6 +118,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 showBG();
                 unitizedDeltaString();
                 addEntry();
+                GsonBG();
                 invalidate();
             }
         };
@@ -123,6 +131,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         private LineChart lineChart;
         ArrayList<String> XAxisTimeValue = new ArrayList<String>();
+
 
         String timestamplastreading = "--";
         String bgvalue = "n/a";
@@ -138,6 +147,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         private View myLayout;
         private TextView sgv, delta, watch_time, timestamp;
         private final Point displaySize = new Point();
+
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -172,9 +182,13 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             delta = (TextView) myLayout.findViewById(R.id.delta);
             timestamp = (TextView) myLayout.findViewById(R.id.timestamp);
             watch_time = (TextView) myLayout.findViewById(R.id.watch_time);
-
             SetupChart();
+
+
         }
+
+        Realm realm;
+
 
         public void SetupChart() {
             lineChart = (LineChart) myLayout.findViewById(R.id.chart);
@@ -203,16 +217,21 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             xl.setDrawGridLines(false);
             xl.setAvoidFirstLastClipping(false);
             xl.setSpaceBetweenLabels(5);
-            xl.setEnabled(false);
+            xl.setEnabled(true);
             xl.setDrawAxisLine(false);
             xl.removeAllLimitLines();
+
+
+            YAxis rightAxis = lineChart.getAxisRight();
+            rightAxis.setEnabled(false);
+
 
 
             // y axis setup
             YAxis leftAxis = lineChart.getAxisLeft();
             leftAxis.setTextColor(Color.WHITE);
             //leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-            leftAxis.setLabelCount(3, true);
+            leftAxis.setLabelCount(7, true);
 
             leftAxis.setAxisMaxValue(400f);
             leftAxis.setAxisMinValue(0f);
@@ -242,6 +261,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             set.setAxisDependency(YAxis.AxisDependency.LEFT);
             set.setColor(ColorTemplate.getHoloBlue());
             set.setCircleColor(Color.WHITE);
+            set.setDrawCubic(true);
             set.setLineWidth(2f);
             set.setCircleRadius(4f);
             set.setFillAlpha(65);
@@ -292,6 +312,36 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
                 // this automatically refreshes the chart (calls invalidate())
                  lineChart.moveViewTo(data.getXValCount(), (float)calculated_value, YAxis.AxisDependency.LEFT);
+            }
+        }
+
+        public void GsonBG() {
+            realm = Realm.getInstance(getApplicationContext());
+            BgReading mBgReading;
+            mBgReading = BgReading.last();
+            if (mBgReading != null) {
+                Gson gson = new GsonBuilder()
+                        .setExclusionStrategies(new ExclusionStrategy() {
+                            @Override
+                            public boolean shouldSkipField(FieldAttributes f) {
+                                return f.getDeclaringClass().equals(RealmObject.class);
+                            }
+
+                            @Override
+                            public boolean shouldSkipClass(Class<?> clazz) {
+                                return false;
+                            }
+                        })
+                        .create();
+
+                String json = mBgReading.toS();
+                BGdata bgdata = gson.fromJson(json, BGdata.class);
+                realm.beginTransaction();
+                BGdata copyOfBGdata = realm.copyToRealm(bgdata);
+                realm.commitTransaction();
+                Log.v("realmio", String.valueOf(copyOfBGdata));
+
+            } else {
             }
         }
 
@@ -454,7 +504,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             watch_time.setText(String.format("%02d:%02d", mTime.hour, mTime.minute));
             getTimestampLastreading();
             timestamp.setText(timestamplastreading + "′");
-            realmioquerry();
+            //realmioquerry();
 
             if (!mAmbient) {
                 //second.setText(String.format("%02d", mTime.second));
@@ -499,42 +549,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         }
 
-        Realm realm = Realm.getInstance(getApplicationContext());
-        public void realmiodb(){
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-                    Contact contact = realm.createObject(Contact.class);
-                    contact.setName("Contact's Name");
-                    contact.setEmail("Contact@hostname.com");
-                    contact.setAddress("Contact's Address");
-                    contact.setAge(20);
-                }
-            }, new Realm.Transaction.Callback() {
-                @Override
-                public void onSuccess() {
-                    //Contact saved
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    //Transaction is rolled-back
-                }
-            });
-            Log.v("realmio", "add things to DB");
-        }
-
-        public void realmioquerry() {
-            //Query to retrieve all Contacts
-            RealmQuery<Contact> query = realm.where(Contact.class);
-            // Add query conditions: age over 18
-            query.greaterThan("age", 18);
-            // Execute the query:
-            RealmResults<Contact> result = query.findAll();
-            //Contacts stored in result
-            Log.v("realmioquerry: ", String.valueOf(result));
-        }
-
         @Override
         public void onTapCommand(
                 @TapType int tapType, int x, int y, long eventTime) {
@@ -542,7 +556,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    realmiodb();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
