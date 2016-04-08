@@ -20,4 +20,12 @@
         <item>60</item>
     </string-array>
 
+    <array name="icons_chart_timeframe">
+        <item>@drawable/ic_history_black_24dp</item>
+        <item>@drawable/ic_history_black_24dp</item>
+        <item>@drawable/ic_history_black_24dp</item>
+        <item>@drawable/ic_history_black_24dp</item>
+        <item>@drawable/ic_history_black_24dp</item>
+    </array>
+
 </resources>

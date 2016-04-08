@@ -5,7 +5,7 @@
         android:title="Chart Timeframe"
         android:entries="@array/chart_timeframe"
         android:entryValues="@array/chart_timeframe_values"
+        app:wear_entryIcons="@array/icons_chart_timeframe"
         android:defaultValue="12"
-        app:wear_entryIcons="@android:drawable/ic_menu_recent_history"
-        android:icon="@android:drawable/ic_menu_recent_history" />
+        android:icon="@drawable/ic_history_black_24dp" />
 </PreferenceScreen>
