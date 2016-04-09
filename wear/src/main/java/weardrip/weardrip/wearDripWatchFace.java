@@ -31,7 +31,6 @@ import android.widget.TextView;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.eveningoutpost.dexdrip.UtilityModels.Intents;
-import com.github.johnpersano.supertoasts.SuperToast;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -562,7 +561,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
-            SuperToast.create(getApplicationContext(), "Hello world!", SuperToast.Duration.LONG).show();
             Log.i("Entry selected", e.toString());
             Log.i("LOWHIGH", "low: " + lineChart.getLowestVisibleXIndex() + ", high: " + lineChart.getHighestVisibleXIndex());
             Log.i("MIN MAX", "xmin: " + lineChart.getXChartMin() + ", xmax: " + lineChart.getXChartMax() + ", ymin: " + lineChart.getYChartMin() + ", ymax: " + lineChart.getYChartMax());
@@ -593,14 +591,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
-            SuperToast.create(getApplicationContext(),
-                    "Set Timeframe to: " + timeframe + "values",
-                    SuperToast.Duration.LONG).show();
-
             chartcubic = sharedPrefs.getBoolean("chart_cubic", true);
-            SuperToast.create(getApplicationContext(),
-                    "Set Cubic to: " + chartcubic,
-                    SuperToast.Duration.LONG).show();
             invalidate();
             lineChart.invalidate();
 
