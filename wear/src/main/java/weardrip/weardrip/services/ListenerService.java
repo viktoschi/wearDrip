@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.activeandroid.query.Select;
 import com.eveningoutpost.dexdrip.ImportedLibraries.dexcom.SyncingService;
@@ -19,6 +18,7 @@ import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.Models.Calibration;
 import com.eveningoutpost.dexdrip.Models.Sensor;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
+import com.github.johnpersano.supertoasts.SuperToast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataEvent;
@@ -56,7 +56,6 @@ public class ListenerService extends WearableListenerService implements
 
         }
 
-
         @Override
         protected Void doInBackground(Void... params) {
             if (googleApiClient.isConnected()) {
@@ -92,13 +91,6 @@ public class ListenerService extends WearableListenerService implements
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
 
-        final Toast toast = Toast.makeText(getBaseContext(), "", Toast.LENGTH_LONG);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                toast.cancel();
-            }
-        }, 1000);
 
         for (DataEvent event : dataEvents) {
             DataMap dataMap;
@@ -109,19 +101,19 @@ public class ListenerService extends WearableListenerService implements
                 if (path.equals(WEARABLE_STOPSENSOR)) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("StopSensor")) {
-                        Sensor.stopSensor();
-                        toast.setText("sensor stopped");
-                        toast.show();
+                        SuperToast.create(getApplicationContext(), "sensor stopped!", SuperToast.Duration.LONG).show();
                     } else {
-                        toast.setText("Sensor not active please start new sensor.");
-                        toast.show();
+                        SuperToast.create(getApplicationContext(),
+                                "Sensor not active please start new sensor.",
+                                SuperToast.Duration.LONG).show();
                     }
                 }
 
                 if (path.equals(WEARABLE_STARTSENSOR)) {
                     if (Sensor.isActive()) {
-                        toast.setText("sensor is active: " + Sensor.isActive());
-                        toast.show();
+                        SuperToast.create(getApplicationContext(),
+                                "sensor is active: " + Sensor.isActive(),
+                                SuperToast.Duration.LONG).show();
                     } else {
                         dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                         int year = dataMap.getInt("year");
@@ -136,11 +128,13 @@ public class ListenerService extends WearableListenerService implements
                         //init sensor start
                         if (dataMap.containsKey("StartSensor")) {
                             Sensor.create(startTime);
-                            toast.setText("New Sensor started at: " + startTime);
-                            toast.show();
+                            SuperToast.create(getApplicationContext(),
+                                    "New Sensor started at: " + startTime,
+                                    SuperToast.Duration.LONG).show();
                         } else {
-                            toast.setText("Sensor still active please stop current sensor: " + startTime);
-                            toast.show();
+                            SuperToast.create(getApplicationContext(),
+                                    "Sensor still active please stop current sensor: " + startTime,
+                                    SuperToast.Duration.LONG).show();
                         }
                     }
                 }
@@ -157,18 +151,20 @@ public class ListenerService extends WearableListenerService implements
                     String getName = prefs.getString("getName", "");
                     String dex_txid = prefs.getString("dex_txid", "");
                     String CollectionMethod = prefs.getString("CollectionMethod", "");
-                    toast.setText("Prefernces recieved: " + " getAdress: " + getAddress
-                            + " getName: " + getName
-                            + " dex_txid: " + dex_txid
-                            + " CollectionMethod: " + CollectionMethod);
-                    toast.show();
+                    SuperToast.create(getApplicationContext(),
+                            "Prefernces recieved: " + " getAdress: " + getAddress
+                                    + " getName: " + getName
+                                    + " dex_txid: " + dex_txid
+                                    + " CollectionMethod: " + CollectionMethod,
+                            SuperToast.Duration.LONG).show();
                 }
 
                 if (path.equals((WEARABLE_STOPCOLLECTIONSERVICE))){
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("StopCollectionService")) {
-                        toast.setText("ActiveBluetoothDevice forget");
-                        toast.show();
+                        SuperToast.create(getApplicationContext(),
+                                "ActiveBluetoothDevice forget!",
+                                SuperToast.Duration.LONG).show();
                         BluetoothManager mBluetoothManager;
                         mBluetoothManager = (BluetoothManager) this.getSystemService(Context.BLUETOOTH_SERVICE);
                         final BluetoothAdapter bluetoothAdapter = mBluetoothManager.getAdapter();
@@ -212,8 +208,9 @@ public class ListenerService extends WearableListenerService implements
                         Context context = this;
                         CollectionServiceStarter restartCollectionService = new CollectionServiceStarter(context);
                         restartCollectionService.restartCollectionService(this);
-                        toast.setText("DexCollectionService started");
-                        toast.show();
+                        SuperToast.create(getApplicationContext(),
+                                "DexCollectionService started",
+                                SuperToast.Duration.LONG).show();
                     }
                 }
 
@@ -225,11 +222,13 @@ public class ListenerService extends WearableListenerService implements
                         Log.d("NEW CALIBRATION", "Calibration value: " + calValue);
                         if (Sensor.isActive()) {
                             SyncingService.startActionCalibrationCheckin(this);
-                            toast.setText("Calibration value: " + calValue);
-                            toast.show();
+                            SuperToast.create(getApplicationContext(),
+                                    "Calibration value: " + calValue,
+                                    SuperToast.Duration.LONG).show();
                         } else {
-                            toast.setText("CALIBRATION ERROR, sensor not active");
-                            toast.show();
+                            SuperToast.create(getApplicationContext(),
+                                    "CALIBRATION ERROR, sensor not active",
+                                    SuperToast.Duration.LONG).show();
                         }
                     }
                 }
@@ -238,16 +237,18 @@ public class ListenerService extends WearableListenerService implements
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("startdoublecalibration")) {
                         if (BgReading.latestUnCalculated(2).size() < 2) {
-                            toast.setText("Please wait, need 2 readings from transmitter first.");
-                            toast.show();
+                            SuperToast.create(getApplicationContext(),
+                                    "Please wait, need 2 readings from transmitter first.",
+                                    SuperToast.Duration.LONG).show();
                         } else {
                             List<Calibration> calibrations = Calibration.latest(2);
                             if (calibrations.size() < 2) {
                                 double calValue1 = Double.parseDouble(dataMap.getString("doublecalibration1", ""));
                                 double calValue2 = Double.parseDouble(dataMap.getString("doublecalibration2", ""));
                                 Calibration.initialCalibration(calValue1, calValue2, this);
-                                toast.setText("Double Calibration values: " + calValue1 + " " + calValue2);
-                                toast.show();
+                                SuperToast.create(getApplicationContext(),
+                                        "Double Calibration values: " + calValue1 + " " + calValue2,
+                                        SuperToast.Duration.LONG).show();
                             }
                         }
                     }
