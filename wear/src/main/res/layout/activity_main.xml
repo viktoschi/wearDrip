@@ -4,8 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    tools:context="app.num.linechart.MainActivity">
+    android:background="@color/black">
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart2"

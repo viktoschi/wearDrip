@@ -1,10 +1,16 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
     <PreferenceScreen
+
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:title="@string/title_chart_settings"
-        android:icon="@drawable/ic_timeline_white_24dp">
-    <ListPreference
+        android:icon="@drawable/ic_timeline_white_24dp"
+        >
+
+        <ListPreference
         android:key="chart_timeframe"
         android:title="@string/title_chart_timeframe"
         android:entries="@array/chart_timeframe"
@@ -13,6 +19,7 @@
         android:defaultValue="12"
         app:wear_entryIcons="@array/icons_chart_timeframe"
         />
+
         <SwitchPreference
             android:key="chart_cubic"
             android:title="@string/title_chart_cubic"
@@ -28,8 +35,10 @@
     </PreferenceScreen>
 
     <PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:title="@string/title_notifications"
-        android:icon="@drawable/ic_notifications_white_24dp">
+        android:icon="@drawable/ic_notifications_white_24dp"
+        >
 
         <SwitchPreference
             android:key="notifications"
