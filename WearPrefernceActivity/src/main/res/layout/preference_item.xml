@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@color/wearprefernceactivity_background"
+    android:textColor="@color/wearprefernceactivity_text"
+    >
+
+    <android.support.wearable.view.CircledImageView
+        android:id="@android:id/icon"
+        android:layout_height="72dp"
+        android:layout_width="72dp"
+        app:circle_color="@android:color/transparent"
+        app:circle_border_color="@color/wearprefernceactivity_text"
+        app:circle_border_width="1dp"
+        />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:textColor="@color/wearprefernceactivity_text"
+        android:background="@color/wearprefernceactivity_background"
+        >
+
+        <TextView
+            android:id="@android:id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:background="@color/wearprefernceactivity_background"
+            android:textColor="@color/wearprefernceactivity_text"
+            />
+
+        <TextView
+            android:id="@android:id/summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAllCaps="true"
+            android:textSize="16sp"
+            android:background="@color/wearprefernceactivity_background"
+            android:textColor="@color/wearprefernceactivity_text"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

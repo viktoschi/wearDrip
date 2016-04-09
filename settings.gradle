@@ -1,1 +1,1 @@
-include ':mobile', ':wear', ':ActiveAndroid'
+include ':mobile', ':wear', ':ActiveAndroid', ':WearPrefernceActivity'
