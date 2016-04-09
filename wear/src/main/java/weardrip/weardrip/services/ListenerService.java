@@ -127,7 +127,8 @@ public class ListenerService extends WearableListenerService implements
                         long startTime = calendar.getTime().getTime();
                         //init sensor start
                         if (dataMap.containsKey("StartSensor")) {
-                            Sensor.create(startTime);
+                            Sensor sensor = Sensor.create(startTime);
+                            BgReading.moveReadingsToNewSensor(sensor, startTime);
                             SuperToast.create(getApplicationContext(),
                                     "New Sensor started at: " + startTime,
                                     SuperToast.Duration.LONG).show();

@@ -40,7 +40,10 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.realm.implementation.RealmLineData;
+import com.github.mikephil.charting.data.realm.implementation.RealmLineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.ExclusionStrategy;
@@ -61,6 +64,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -201,7 +206,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             lineChart.setNoDataTextDescription("You need to provide data for the chart.");
             lineChart.setDrawGridBackground(false);
             lineChart.setOnChartValueSelectedListener(this);
-            lineChart.setTouchEnabled(false);
+            lineChart.setTouchEnabled(true);
             lineChart.setDragEnabled(false);
             lineChart.setPinchZoom(false);
             lineChart.setScaleXEnabled(true);
@@ -303,6 +308,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 data.addXValue(XAxisTimeValue.get(data.getXValCount()));
 
                 // choose a dataSet
+                //RealmResults<BGdata> results = realm.allObjects(BGdata.class);
+                //RealmLineDataSet(RealmResults<T> results, "calculated_value")
+                //RealmLineDataSet<BGdata> dataSet = new RealmLineDataSet<BGdata>(results, "calculated_value");
+                //RealmLineData dataset = new RealmLineData(results, "calculated_value", (List<ILineDataSet>) data);
+
+                //lineChart.setData(dataset);
+
+
                 data.addEntry(new Entry((float) calculated_value, set.getEntryCount()), 0);
                 lineChart.notifyDataSetChanged();
 
@@ -340,6 +353,16 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
             } else {
             }
+        }
+
+        public void querryrealm() {
+            RealmResults<BGdata> results1 = realm.where(BGdata.class).findAll();
+            if (results1 != null) {
+                for (BGdata c : results1) {
+                    Log.d("results1", String.valueOf(c.getCalculatedValue()));
+                }
+            }
+            else {Log.d("emty database","");}
         }
 
         public void showBG() {
@@ -539,6 +562,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onValueSelected(Entry e, int dataSetIndex, Highlight h) {
+            SuperToast.create(getApplicationContext(), "Hello world!", SuperToast.Duration.LONG).show();
             Log.i("Entry selected", e.toString());
             Log.i("LOWHIGH", "low: " + lineChart.getLowestVisibleXIndex() + ", high: " + lineChart.getHighestVisibleXIndex());
             Log.i("MIN MAX", "xmin: " + lineChart.getXChartMin() + ", xmax: " + lineChart.getXChartMax() + ", ymin: " + lineChart.getYChartMin() + ", ymax: " + lineChart.getYChartMax());
@@ -556,7 +580,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    SuperToast.create(getApplicationContext(), "Hello world!", SuperToast.Duration.LONG).show();
+                    querryrealm();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
@@ -569,7 +593,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             timeframe = Integer.parseInt(sharedPrefs.getString("chart_timeframe", "12"));
+            SuperToast.create(getApplicationContext(),
+                    "Set Timeframe to: " + timeframe + "values",
+                    SuperToast.Duration.LONG).show();
+
             chartcubic = sharedPrefs.getBoolean("chart_cubic", true);
+            SuperToast.create(getApplicationContext(),
+                    "Set Cubic to: " + chartcubic,
+                    SuperToast.Duration.LONG).show();
             invalidate();
             lineChart.invalidate();
 
