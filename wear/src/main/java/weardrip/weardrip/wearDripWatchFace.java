@@ -580,7 +580,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    querryrealm();
+                    //querryrealm();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;
