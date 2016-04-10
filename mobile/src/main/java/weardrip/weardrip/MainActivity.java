@@ -27,6 +27,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
+import java.io.File;
 import java.util.Calendar;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
@@ -103,7 +104,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                Log.v("BroadcastReceiver: ", "Realm");
                 closeRealm();
                 getRealm();
                 updateTitle();
@@ -177,7 +177,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .build();
         Realm realm = Realm.getInstance(config);
         int size = realm.allObjects(BGdata.class).size();
-        mTxtTitle.setText(String.format("Items in database: %d", size));
+        File file = new File("/data/data/weardrip/weardrip/files/default.realm");
+        String length = String.valueOf(file.length() / (1024 * 1024));
+        mTxtTitle.setText(String.format("Items in database: %d", size)
+                + "\nSize on Phone: " + length + " MB");
         realm.close();
     }
 
