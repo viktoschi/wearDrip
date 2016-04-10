@@ -18,6 +18,9 @@ import io.realm.Realm;
 
 public class ListenerService extends WearableListenerService {
     private static final String TAG = ListenerService.class.getSimpleName();
+    public static final String WEAR_PATH = "/realm_data";
+    public static final String DATA_STORY_CHANGED = "realm.storychanged";
+    public static final String DATA_ASSET_FILE = "realm.asset.file";
 
 
     @Override
@@ -27,18 +30,17 @@ public class ListenerService extends WearableListenerService {
 
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
-        Log.d(TAG, "onDataChanged");
         final List<DataEvent> events = FreezableUtils.freezeIterable(dataEvents);
         dataEvents.close();
         for (DataEvent event : events) {
             Uri uri = event.getDataItem().getUri();
             String path = uri.getPath();
-            if (Tools.WEAR_PATH.equals(path)) {
+            if (WEAR_PATH.equals(path)) {
                 DataMapItem item = DataMapItem.fromDataItem(event.getDataItem());
-                byte[] realmAsset = item.getDataMap().getByteArray(Tools.DATA_ASSET_FILE);
+                byte[] realmAsset = item.getDataMap().getByteArray(DATA_ASSET_FILE);
                 if (realmAsset != null) {
                     toFile(realmAsset);
-                    getBaseContext().sendBroadcast(new Intent(Tools.DATA_STORY_CHANGED));
+                    getBaseContext().sendBroadcast(new Intent(DATA_STORY_CHANGED));
                 }
             }
         }

@@ -23,6 +23,8 @@ public class FileSender extends AsyncTask<Void, Void, Void> {
     private Asset asset;
     private Context context;
     private GoogleApiClient mGoogleAppiClient;
+    public static final String WEAR_PATH = "/realm_data";
+    public static final String DATA_ASSET_FILE = "realm.asset.file";
 
 
     public FileSender(Asset asset, Context context) {
@@ -55,9 +57,9 @@ public class FileSender extends AsyncTask<Void, Void, Void> {
         if (asset == null) {
             return;
         }
-        PutDataMapRequest dataMap = PutDataMapRequest.create(Tools.WEAR_PATH);
+        PutDataMapRequest dataMap = PutDataMapRequest.create(WEAR_PATH);
         byte[] arr = asset.getData();
-        dataMap.getDataMap().putByteArray(Tools.DATA_ASSET_FILE, arr);
+        dataMap.getDataMap().putByteArray(DATA_ASSET_FILE, arr);
         dataMap.getDataMap().putLong("timestamp", Calendar.getInstance().getTimeInMillis());
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi.putDataItem(mGoogleAppiClient, request);

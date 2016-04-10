@@ -441,7 +441,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onStart() {
         super.onStart();
         googleApiClient.connect();
-        IntentFilter filter = new IntentFilter(Tools.DATA_STORY_CHANGED);
+        IntentFilter filter = new IntentFilter(ListenerService.DATA_STORY_CHANGED);
         registerReceiver(receiver, filter);
     }
 

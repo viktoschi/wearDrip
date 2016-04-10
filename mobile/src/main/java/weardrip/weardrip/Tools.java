@@ -7,13 +7,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Tools {
-
-
-    public static final String WEAR_PATH = "/realm_data";
-    public static final String DATA_STORY_CHANGED = "realm.storychanged";
-    public static final String DATA_ASSET_FILE = "realm.asset.file";
-
-
     public static Asset assetFromFile(String path) {
         try {
             return Asset.createFromBytes(readFile(path));
