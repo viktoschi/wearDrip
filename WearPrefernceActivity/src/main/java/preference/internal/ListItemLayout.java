@@ -178,8 +178,7 @@ public class ListItemLayout extends FrameLayout implements WearableListView.OnCe
         }
         if(title!=null) {
             title.setText(titleText);
-            title.setTextColor(Color.WHITE);
-
+            title.setTextColor(-1);
         }
         if(summary!=null) {
             if(summaryText==null) {
@@ -211,8 +210,7 @@ public class ListItemLayout extends FrameLayout implements WearableListView.OnCe
 
         if(title!=null) {
             title.setAlpha(1);
-            title.setTextColor(Color.WHITE);
-
+            title.setTextColor(-1);
         }
         if(summary!=null) {
             summary.setAlpha(1);
@@ -233,12 +231,10 @@ public class ListItemLayout extends FrameLayout implements WearableListView.OnCe
 
         if(title!=null) {
             title.setAlpha(ALPHA_NON_CENTER);
-            title.setTextColor(Color.WHITE);
-
+            title.setTextColor(-1);
         }
         if(summary!=null) {
             summary.setAlpha(ALPHA_NON_CENTER);
         }
     }
-
 }

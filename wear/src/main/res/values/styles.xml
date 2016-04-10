@@ -8,6 +8,6 @@
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@color/black</item>
-
     </style>
+
 </resources>

@@ -357,7 +357,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         public void querryrealm() {
             RealmResults<BGdata> results1 = realm.where(BGdata.class).findAll();
             if (results1 != null) {
-                for (BGdata c : results1) {
+                for (BGdata c:results1) {
                     Log.d("results1", String.valueOf(c.getCalculatedValue()));
                 }
             }
@@ -578,7 +578,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    //querryrealm();
+                    querryrealm();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;

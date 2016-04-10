@@ -2,6 +2,7 @@ package preference.internal;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.wearable.view.WearableListView;
 import android.util.AttributeSet;
@@ -44,6 +45,7 @@ public class HeadingListView extends RelativeLayout implements WearableListView.
     }
 
     @Override public WindowInsets onApplyWindowInsets(final WindowInsets insets) {
+        heading.setTextColor(-1);
         if(insets.isRound()) {
             heading.setGravity(Gravity.CENTER_HORIZONTAL);
 

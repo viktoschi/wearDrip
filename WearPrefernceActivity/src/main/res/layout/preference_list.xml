@@ -3,8 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/wearprefernceactivity_background"
-    android:textColor="@color/wearprefernceactivity_text"
     >
 
     <TextView
@@ -24,8 +22,6 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/wearprefernceactivity_background"
-        android:textColor="@color/wearprefernceactivity_text"
         />
 
 </preference.internal.HeadingListView>
