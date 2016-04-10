@@ -1,13 +1,10 @@
 package weardrip.weardrip;
 
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.NotificationCompat;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import com.dd.realmbrowser.RealmBrowser;
+import android.widget.TextView;
 
 import com.fourmob.datetimepicker.date.DatePickerDialog;
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +26,9 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 public class MainActivity extends FragmentActivity implements View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -36,6 +38,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     EditText calibration, doublecalibration, intercept, slope;
     int year, month ,day ,hour ,minute;
     private GoogleApiClient googleApiClient;
+    public static final String REALM_FILE_NAME = "db10";
+    private TextView mTxtTitle;
 
 
     @Override
@@ -75,6 +79,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .addOnConnectionFailedListener(this)
                 .addApi(Wearable.API)
                 .build();
+
+        RealmBrowser.getInstance().addRealmModel(BGdata.class);
+
+        mTxtTitle = (TextView) findViewById(R.id.txtTitle);
+        findViewById(R.id.btnOpenFile).setOnClickListener(this);
+        findViewById(R.id.btnOpenModel).setOnClickListener(this);
+
+        updateTitle();
+
+        RealmBrowser.showRealmFilesNotification(this);
     }
 
     @Override
@@ -105,6 +119,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             case R.id.intercept:
                 interceptonClick();
                 break;
+            case R.id.btnOpenFile:
+                startRealmFilesActivity();
+                break;
+            case R.id.btnOpenModel:
+                startRealmModelsActivity();
+                break;
         }
     }
 
@@ -131,6 +151,25 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void updateTitle() {
+        RealmConfiguration config = new RealmConfiguration.Builder(this)
+                .name(REALM_FILE_NAME)
+                .build();
+        Realm realm = Realm.getInstance(config);
+        int size = realm.allObjects(BGdata.class).size();
+        mTxtTitle.setText(String.format("Items in database: %d", size));
+        realm.close();
+    }
+
+    private void startRealmFilesActivity() {
+        RealmBrowser.startRealmFilesActivity(this);
+    }
+
+    private void startRealmModelsActivity() {
+        RealmBrowser.startRealmModelsActivity(this, REALM_FILE_NAME);
+    }
+
 
     public void calibrationonClick(){
 

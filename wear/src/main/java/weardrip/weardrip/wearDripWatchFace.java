@@ -120,7 +120,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             public void onReceive(Context context, Intent intent) {
                 showBG();
                 unitizedDeltaString();
-                refreshData();
                 GsonBG();
                 invalidate();
             }
@@ -355,13 +354,8 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         }
 
         public void querryrealm() {
-            RealmResults<BGdata> results1 = realm.where(BGdata.class).findAll();
-            if (results1 != null) {
-                for (BGdata c:results1) {
-                    Log.d("results1", String.valueOf(c.getCalculatedValue()));
-                }
-            }
-            else {Log.d("emty database","");}
+            FileSender.syncRealm(context);
+
         }
 
         public void showBG() {
@@ -594,7 +588,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             chartcubic = sharedPrefs.getBoolean("chart_cubic", true);
             invalidate();
             lineChart.invalidate();
-
         }
     }
 }

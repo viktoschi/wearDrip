@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center_horizontal">
 
     <TableRow
@@ -187,5 +188,42 @@
             android:focusable="false" />
 
     </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/txtTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Items in database: 100"
+            android:layout_column="1" />
+
+    </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btnOpenFile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="1"
+            style="?android:attr/borderlessButtonStyle"
+            android:text="Realm Browser" />
+        <Button
+            android:id="@+id/btnOpenModel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open_model_list"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_column="2" />
+
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TableRow>
 
 </TableLayout>
