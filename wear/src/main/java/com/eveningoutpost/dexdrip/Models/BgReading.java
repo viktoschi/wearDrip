@@ -549,26 +549,6 @@ public class BgReading extends Model {
         return ((relativeSlope * calibrationTime) + relativeIntercept);
     }
 
-    // This function is used in order to eliminate the need to wait for two minutes if a sensor was started more than 2 hours ago.
-    public static void moveReadingsToNewSensor(Sensor sensor, long sensorStartTime) {
-        List<BgReading> newReadings =
-                new Select()
-                        .from(BgReading.class)
-                        .where("timestamp >= " + (sensorStartTime + 2 * 60 * 60000))
-                        .orderBy("timestamp desc")
-                        .execute();
-        if (newReadings == null) {
-            Log.e("TAG", "newReadings = null");
-            return;
-        }
-        Log.e("TAG", "newReadings size " + newReadings.size());
-        for (BgReading bgReading : newReadings) {
-            bgReading.sensor = sensor;
-            bgReading.sensor_uuid = sensor.uuid;
-            bgReading.save();
-        }
-    }
-
     // list(0) is the most recent reading.
     public static List<BgReading> getXRecentPoints(int NumReadings) {
         List<BgReading> latest = BgReading.latest(NumReadings);

@@ -107,6 +107,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 closeRealm();
                 getRealm();
                 updateTitle();
+                Intent a = new Intent(MainActivity.this, MainActivity.class);
+                a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(a);
             }
         };
     }
@@ -419,7 +422,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .show();
     }
 
-
     public void startcollectionserviceonClick() {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_startcollectionservice").setUrgent();
         putDataMapReq.getDataMap().putString("timestamp", Long.toString(System.currentTimeMillis()));
@@ -458,7 +460,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onConnected(Bundle bundle) {
     }
-
 
     @Override
     public void onConnectionSuspended(int cause) {

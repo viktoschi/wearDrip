@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.eveningoutpost.dexdrip.Models.BgReading;
 import com.eveningoutpost.dexdrip.UtilityModels.CollectionServiceStarter;
 import com.eveningoutpost.dexdrip.UtilityModels.Intents;
+import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.LimitLine;
@@ -39,7 +40,10 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.realm.implementation.RealmLineData;
+import com.github.mikephil.charting.data.realm.implementation.RealmLineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.ExclusionStrategy;
@@ -60,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 
 
 public class wearDripWatchFace extends CanvasWatchFaceService {
@@ -121,6 +126,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 showBG();
                 unitizedDeltaString();
                 GsonBG();
+                refreshData();
                 FileSender.syncRealm(wearDripWatchFace.this);
                 invalidate();
             }
@@ -337,9 +343,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             }
         }
 
-        public void querryrealm() {
-
-        }
 
         public void showBG() {
             BgReading mBgReading;
@@ -555,7 +558,6 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH:
-                    querryrealm();
                     break;
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     break;

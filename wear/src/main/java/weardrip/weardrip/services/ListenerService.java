@@ -129,7 +129,6 @@ public class ListenerService extends WearableListenerService implements
                         //init sensor start
                         if (dataMap.containsKey("StartSensor")) {
                             Sensor sensor = Sensor.create(startTime);
-                            BgReading.moveReadingsToNewSensor(sensor, startTime);
                             toastcard("New Sensor started at: " + startTime);
                         } else {
                             toastcard("Sensor still active please stop current sensor: " + startTime);
