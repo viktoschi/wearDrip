@@ -147,8 +147,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         public Boolean chartcubic = false;
 
         protected SharedPreferences sharedPrefs;
-
-        Realm realm;
+        public Realm realm;
 
 
         /**
@@ -349,8 +348,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         }
 
         public void querryrealm() {
-            FileSender.syncRealm(context);
-
+            FileSender.syncRealm(wearDripWatchFace.this);
         }
 
         public void showBG() {

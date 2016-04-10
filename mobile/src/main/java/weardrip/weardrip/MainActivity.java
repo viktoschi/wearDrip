@@ -1,8 +1,12 @@
 package weardrip.weardrip;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
@@ -23,6 +27,7 @@ import com.google.android.gms.wearable.Wearable;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
@@ -40,6 +45,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private GoogleApiClient googleApiClient;
     public static final String REALM_FILE_NAME = "db10";
     private TextView mTxtTitle;
+    private BroadcastReceiver receiver;
 
 
     @Override
@@ -90,6 +96,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         updateTitle();
 
         RealmBrowser.showRealmFilesNotification(this);
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(fragmentStorySelector != null){
+                    WearSpritzerApplication.closeRealm();
+                    WearSpritzerApplication.getRealm();
+                    fragmentStorySelector.readStoriesRealm();
+                }
+            }
+        };
     }
 
     @Override
@@ -414,6 +431,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     public void onConnected(Bundle bundle) {
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter(Tools.DATA_STORY_CHANGED);
+        registerReceiver(receiver, filter);
+    }
+
 
     @Override
     public void onConnectionSuspended(int cause) {
