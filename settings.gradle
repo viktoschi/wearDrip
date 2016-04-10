@@ -1,1 +1,1 @@
-include ':mobile', ':wear', ':ActiveAndroid', ':WearPrefernceActivity', ':realm-browser'
+include ':mobile', ':wear', ':ActiveAndroid', ':WearPrefernceActivity'

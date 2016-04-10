@@ -33,5 +33,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.github.jaydeep17:datetimepicker:0.0.4'
-    compile project(':realm-browser')
+    debugCompile 'com.github.jonasrottmann.realm-browser:realm-browser:v0.0.8'
+    releaseCompile 'com.github.jonasrottmann.realm-browser:realm-browser-no-op:v0.0.8'
 }

@@ -12,7 +12,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import com.dd.realmbrowser.RealmBrowser;
 import android.widget.TextView;
 
 import com.fourmob.datetimepicker.date.DatePickerDialog;
@@ -26,6 +25,7 @@ import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
 import java.util.Calendar;
 
+import de.jonasrottmann.realmbrowser.RealmBrowser;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -81,6 +81,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .build();
 
         RealmBrowser.getInstance().addRealmModel(BGdata.class);
+
 
         mTxtTitle = (TextView) findViewById(R.id.txtTitle);
         findViewById(R.id.btnOpenFile).setOnClickListener(this);
