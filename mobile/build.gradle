@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+
 
 android {
     compileSdkVersion 23
@@ -26,11 +28,10 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     wearApp project(':wear')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.0.0-alpha1'
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
     compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.android.support:design:24.0.0-alpha1'
+    compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.github.jaydeep17:datetimepicker:0.0.4'
-    compile 'io.realm:realm-android:0.87.0'
     compile project(':realm-browser')
 }
