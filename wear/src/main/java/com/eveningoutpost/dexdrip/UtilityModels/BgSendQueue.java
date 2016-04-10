@@ -105,12 +105,12 @@ public class BgSendQueue extends Model {
                 bundle.putInt(Intents.EXTRA_SENSOR_BATTERY, getBatteryLevel(context));
                 bundle.putLong(Intents.EXTRA_TIMESTAMP, bgReading.timestamp);
 
-              //  Calibration cal = Calibration.last();
-              //  bundle.putDouble(Intents.EXTRA_RAW, NightscoutUploader.getNightscoutRaw(bgReading, cal));
-              //  Intent intent = new Intent(Intents.ACTION_NEW_BG_ESTIMATE);
-              //  intent.putExtras(bundle);
-              //  intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-              //  context.sendBroadcast(intent, Intents.RECEIVER_PERMISSION);
+                //  Calibration cal = Calibration.last();
+                //  bundle.putDouble(Intents.EXTRA_RAW, NightscoutUploader.getNightscoutRaw(bgReading, cal));
+                //  Intent intent = new Intent(Intents.ACTION_NEW_BG_ESTIMATE);
+                //  intent.putExtras(bundle);
+                //  intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                //  context.sendBroadcast(intent, Intents.RECEIVER_PERMISSION);
 
                 //just keep it alive for 3 more seconds to allow the watch to be updated
                 // TODO: change NightWatch to not allow the system to sleep.
@@ -159,17 +159,17 @@ public class BgSendQueue extends Model {
         }
     }
 
-    public void deleteThis() {
-        this.delete();
-    }
-
     public static int getBatteryLevel(Context context) {
         Intent batteryIntent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        if(level == -1 || scale == -1) {
+        if (level == -1 || scale == -1) {
             return 50;
         }
-        return (int)(((float)level / (float)scale) * 100.0f);
+        return (int) (((float) level / (float) scale) * 100.0f);
+    }
+
+    public void deleteThis() {
+        this.delete();
     }
 }

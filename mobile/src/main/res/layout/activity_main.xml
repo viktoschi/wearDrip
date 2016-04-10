@@ -1,9 +1,9 @@
 <TableLayout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center_horizontal">
 
     <TableRow
@@ -35,18 +35,18 @@
 
         <Button
             android:id="@+id/startsensor"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="1"
-            style="?android:attr/borderlessButtonStyle"
             android:text="Start Sensor" />
 
         <Button
             android:id="@+id/stopsensor"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="2"
-            style="?android:attr/borderlessButtonStyle"
             android:text="Stop Sensor" />
     </TableRow>
 
@@ -65,20 +65,20 @@
         android:layout_height="match_parent">
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Collection\r\n Service"
             android:id="@+id/startcollectionservice"
             style="?android:attr/borderlessButtonStyle"
-            android:layout_column="1" />
-
-        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Forget BT Device\r\n"
-            style="?android:attr/borderlessButtonStyle"
+            android:layout_column="1"
+            android:text="Start Collection\r\n Service" />
+
+        <Button
             android:id="@+id/stopcollectionservice"
-            android:layout_column="2" />
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="2"
+            android:text="Forget BT Device\r\n" />
 
     </TableRow>
 
@@ -188,6 +188,7 @@
             android:focusable="false" />
 
     </TableRow>
+
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -196,28 +197,30 @@
             android:id="@+id/txtTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Items in database: 100"
-            android:layout_column="1" />
+            android:layout_column="1"
+            tools:text="Items in database: 100" />
 
     </TableRow>
+
     <TableRow
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <Button
             android:id="@+id/btnOpenFile"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="1"
-            style="?android:attr/borderlessButtonStyle"
             android:text="Realm Browser" />
+
         <Button
             android:id="@+id/btnOpenModel"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open_model_list"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_column="2" />
+            android:layout_column="2"
+            android:text="Open_model_list" />
 
 
     </TableRow>

@@ -101,15 +101,20 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 }
             }
         };
-
-        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mTime.clear(intent.getStringExtra("time-zone"));
-                mTime.setToNow();
-            }
-        };
-
+        private final Point displaySize = new Point();
+        public int timeframe;
+        public Boolean chartcubic = false;
+        public Realm realm;
+        protected SharedPreferences sharedPrefs;
+        boolean mRegisterednewDataReceiver = false;
+        boolean mRegisteredTimeZoneReceiver = false;
+        boolean mAmbient;
+        boolean mLowBitAmbient;
+        ArrayList<String> XAxisTimeValue = new ArrayList<String>();
+        String timestamplastreading = "--";
+        String bgvalue = "n/a";
+        String deltalastreading = "---";
+        double calculated_value = 0.0;
         final BroadcastReceiver newDataReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -119,36 +124,20 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 invalidate();
             }
         };
-
-        boolean mRegisterednewDataReceiver = false;
-        boolean mRegisteredTimeZoneReceiver = false;
-
-        boolean mAmbient;
-        boolean mLowBitAmbient;
-
-        private LineChart lineChart;
-        ArrayList<String> XAxisTimeValue = new ArrayList<String>();
-
-        String timestamplastreading = "--";
-        String bgvalue = "n/a";
-        String deltalastreading = "---";
-        double calculated_value = 0.0;
-
         Time mTime;
-
+        final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mTime.clear(intent.getStringExtra("time-zone"));
+                mTime.setToNow();
+            }
+        };
         float mXOffset = 0;
         float mYOffset = 0;
+        private LineChart lineChart;
         private int specW, specH;
-
         private View myLayout;
         private TextView sgv, delta, watch_time, timestamp;
-        private final Point displaySize = new Point();
-        public int timeframe;
-        public Boolean chartcubic = false;
-
-        protected SharedPreferences sharedPrefs;
-        public Realm realm;
-
 
         /**
          * Whether the display supports fewer bits for each color in ambient mode. When true, we
@@ -273,14 +262,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
 
         private void refreshData() {
             LineData data = lineChart.getData();
-            if(data != null) {
+            if (data != null) {
                 LineDataSet set = (LineDataSet) data.getDataSetByIndex(0);
                 if (set == null) {
                     set = createSet();
                     data.addDataSet(set);
                 }
 
-                if(set.getEntryCount() == timeframe) {
+                if (set.getEntryCount() == timeframe) {
                     data.removeXValue(0);
                     set.removeEntry(0);
                     for (Entry entry : set.getYVals()) {
@@ -367,7 +356,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             Long mTimeStampLastreading;
             mTimeStampLastreading = BgReading.getTimeSinceLastReading();
             if (mTimeStampLastreading != null) {
-                long minutesago=((mTimeStampLastreading)/1000)/60;
+                long minutesago = ((mTimeStampLastreading) / 1000) / 60;
                 timestamplastreading = String.valueOf(minutesago);
             } else {
                 timestamplastreading = "--'";

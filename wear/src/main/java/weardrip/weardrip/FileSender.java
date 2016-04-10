@@ -1,22 +1,5 @@
 package weardrip.weardrip;
 
-import android.os.AsyncTask;
-import android.util.Log;
-import android.content.Context;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
-import com.google.android.gms.wearable.Wearable;
-
-import java.io.File;
-
-import io.realm.Realm;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -34,18 +17,24 @@ import java.io.File;
 import java.util.Calendar;
 
 import io.realm.Realm;
-import pl.tajchert.spritzerwearcommon.Tools;
 
 public class FileSender extends AsyncTask<Void, Void, Void> {
+    private static final String TAG = "AssetsSender";
     private Asset asset;
     private Context context;
     private GoogleApiClient mGoogleAppiClient;
-    private static final String TAG = "AssetsSender";
 
 
     public FileSender(Asset asset, Context context) {
         this.asset = asset;
         this.context = context;
+    }
+
+    public static void syncRealm(Context context) {
+        File writableFolder = context.getFilesDir();
+        File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
+        Asset realAsset = Tools.assetFromFile(realmFile);
+        new FileSender(realAsset, context).execute();
     }
 
     @Override
@@ -63,7 +52,7 @@ public class FileSender extends AsyncTask<Void, Void, Void> {
     }
 
     private void sendData(Asset asset) {
-        if(asset == null){
+        if (asset == null) {
             return;
         }
         PutDataMapRequest dataMap = PutDataMapRequest.create(Tools.WEAR_PATH);
@@ -78,12 +67,5 @@ public class FileSender extends AsyncTask<Void, Void, Void> {
                 Log.d(TAG, "onResult result:" + dataItemResult.getStatus());
             }
         });
-    }
-
-    public static void syncRealm(Context context){
-        File writableFolder = context.getFilesDir();
-        File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
-        Asset realAsset = Tools.assetFromFile(realmFile);
-        new FileSender(realAsset, context).execute();
     }
 }

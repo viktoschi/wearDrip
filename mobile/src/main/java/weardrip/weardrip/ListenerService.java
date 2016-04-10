@@ -20,8 +20,6 @@ public class ListenerService extends WearableListenerService {
     private static final String TAG = ListenerService.class.getSimpleName();
 
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -38,7 +36,7 @@ public class ListenerService extends WearableListenerService {
             if (Tools.WEAR_PATH.equals(path)) {
                 DataMapItem item = DataMapItem.fromDataItem(event.getDataItem());
                 byte[] realmAsset = item.getDataMap().getByteArray(Tools.DATA_ASSET_FILE);
-                if(realmAsset != null){
+                if (realmAsset != null) {
                     toFile(realmAsset);
                     getBaseContext().sendBroadcast(new Intent(Tools.DATA_STORY_CHANGED));
                 }
@@ -46,18 +44,17 @@ public class ListenerService extends WearableListenerService {
         }
     }
 
-    private void toFile(byte [] byteArray){
+    private void toFile(byte[] byteArray) {
         File writableFolder = ListenerService.this.getFilesDir();
         File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
         if (realmFile.exists()) {
             realmFile.delete();
         }
         try {
-            FileOutputStream fos=new FileOutputStream(realmFile.getPath());
+            FileOutputStream fos = new FileOutputStream(realmFile.getPath());
             fos.write(byteArray);
             fos.close();
-        }
-        catch (java.io.IOException e) {
+        } catch (java.io.IOException e) {
             Log.d(TAG, "toFile exception: " + e.getLocalizedMessage());
         }
     }

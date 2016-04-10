@@ -6,9 +6,9 @@
 
     <Button
         android:id="@+id/sendpreferencesbutton"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="?android:attr/borderlessButtonStyle"
         android:text="Send Prefernces to Wear" />
 
     <ListView

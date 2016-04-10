@@ -19,11 +19,9 @@ public class Preferences extends PreferenceActivity implements View.OnClickListe
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-        String CollectionMethod, txid, getAddress;
-        Button sendpreferencesbutton;
-        private GoogleApiClient googleApiClient;
-
-
+    String CollectionMethod, txid, getAddress;
+    Button sendpreferencesbutton;
+    private GoogleApiClient googleApiClient;
 
 
     @Override
@@ -78,11 +76,9 @@ public class Preferences extends PreferenceActivity implements View.OnClickListe
     }
 
 
-
     @Override
     public void onClick(View v) {
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.sendpreferencesbutton:
                 sendconfigButtonclick();
                 break;

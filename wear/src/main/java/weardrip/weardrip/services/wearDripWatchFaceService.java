@@ -10,16 +10,10 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.wearable.watchface.CanvasWatchFaceService;
-import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-
-import java.lang.Override;
-import java.lang.Runnable;
-import java.lang.String;
-import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import weardrip.weardrip.MainActivity;
@@ -37,10 +31,54 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
 
         private static final String ACTION_TIME_ZONE = "time-zone";
         private static final String TAG = "SimpleEngine";
-
+        int mTapCount = 0;
         private wearDripWatchFace watchFace;
         private Handler timeTick;
+        private final Runnable timeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                onSecondTick();
 
+                if (isVisible() && !isInAmbientMode()) {
+                    timeTick.postDelayed(this, TICK_PERIOD_MILLIS);
+                }
+            }
+        };
+        private BroadcastReceiver timeZoneChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
+                    // watchFace.updateTimeZoneWith(intent.getStringExtra(ACTION_TIME_ZONE));
+                }
+            }
+        };
+        private BroadcastReceiver onCharger = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())) {
+                    Log.d("watch ", "on charger");
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
+                            startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            wearDripWatchFaceService.this.startActivity(startIntent);
+                        }
+                    };
+                    Handler h = new Handler();
+                    h.postDelayed(r, 1000);
+                }
+
+                if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
+                    Log.d("watch ", "not on charger");
+                    //Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
+                    //intent.putExtra("stop", true);
+                    //startActivity(startIntent);
+                }
+            }
+        };
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -69,17 +107,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             }
         }
 
-        private final Runnable timeRunnable = new Runnable() {
-            @Override
-            public void run() {
-                onSecondTick();
-
-                if (isVisible() && !isInAmbientMode()) {
-                    timeTick.postDelayed(this, TICK_PERIOD_MILLIS);
-                }
-            }
-        };
-
         private void onSecondTick() {
             invalidateIfNecessary();
         }
@@ -97,7 +124,7 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
 
             if (visible) {
                 registerTimeZoneReceiver();
-               // googleApiClient.connect();
+                // googleApiClient.connect();
                 registeronChargeReceiver();
             } else {
                 unregisterTimeZoneReceiver();
@@ -106,8 +133,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             }
             startTimerIfNecessary();
         }
-
-
 
         private void unregisterTimeZoneReceiver() {
             unregisterReceiver(timeZoneChangedReceiver);
@@ -118,16 +143,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             registerReceiver(timeZoneChangedReceiver, timeZoneFilter);
         }
 
-        private BroadcastReceiver timeZoneChangedReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                if (Intent.ACTION_TIMEZONE_CHANGED.equals(intent.getAction())) {
-                   // watchFace.updateTimeZoneWith(intent.getStringExtra(ACTION_TIME_ZONE));
-                }
-            }
-        };
-
         private void unregisteronChargeReceiver() {
             unregisterReceiver(onCharger);
         }
@@ -136,33 +151,6 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
             IntentFilter onCharge = new IntentFilter(Intent.ACTION_POWER_CONNECTED);
             registerReceiver(onCharger, onCharge);
         }
-
-        private BroadcastReceiver onCharger = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())){
-                    Log.d("watch ", "on charger");
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run(){
-                            Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
-                            startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            wearDripWatchFaceService.this.startActivity(startIntent);
-                        }
-                    };
-                    Handler h = new Handler();
-                    h.postDelayed(r, 1000);
-                }
-
-               if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
-                    Log.d("watch ", "not on charger");
-                    //Intent startIntent = new Intent(wearDripWatchFaceService.this, MainActivity.class);
-                    //intent.putExtra("stop", true);
-                    //startActivity(startIntent);
-               }
-            }
-        };
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
@@ -180,32 +168,30 @@ public class wearDripWatchFaceService extends CanvasWatchFaceService {
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
             //watchFace.setAntiAlias(!inAmbientMode);
-           // watchFace.setShowSeconds(!isInAmbientMode());
+            // watchFace.setShowSeconds(!isInAmbientMode());
 
             if (inAmbientMode) {
                 //watchFace.updateBackgroundColourToDefault();
-               // watchFace.updateDateAndTimeColourToDefault();
-             //   watchFace.showBG();
+                // watchFace.updateDateAndTimeColourToDefault();
+                //   watchFace.showBG();
             } else {
-               // watchFace.restoreBackgroundColour();
-               // watchFace.restoreDateAndTimeColour();
-               // watchFace.showBG();
+                // watchFace.restoreBackgroundColour();
+                // watchFace.restoreDateAndTimeColour();
+                // watchFace.showBG();
             }
             invalidate();
             startTimerIfNecessary();
         }
 
-
-        int mTapCount=0;
         private void changeBackground() {
             mTapCount++;
-            switch(mTapCount % 2) {
+            switch (mTapCount % 2) {
                 case 0:
-                  //  watchFace.wfChangeCase0();
+                    //  watchFace.wfChangeCase0();
                     invalidate();
                     break;
                 case 1:
-                   // watchFace.wfChangeCase1();
+                    // watchFace.wfChangeCase1();
                     invalidate();
                     break;
             }

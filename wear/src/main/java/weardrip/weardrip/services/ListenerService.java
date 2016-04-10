@@ -51,27 +51,8 @@ public class ListenerService extends WearableListenerService implements
     private static final String WEARABLE_STARTCOLLECTIONSERVICE = "/wearable_startcollectionservice";
     private static final String WEARABLE_CALIBRATION = "/wearable_calibration";
     private static final String WEARABLE_DOUBLECALIBRATION = "/wearable_doublecalibration";
-
-    private Context mContext;
-
     GoogleApiClient googleApiClient;
-
-    public class DataRequester extends AsyncTask<Void, Void, Void> {
-
-        DataRequester(Context context) {
-            mContext = context;
-
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (googleApiClient.isConnected()) {
-
-            } else
-                googleApiClient.connect();
-            return null;
-        }
-    }
+    private Context mContext;
 
     public void requestData() {
         new DataRequester(this).execute();
@@ -97,10 +78,11 @@ public class ListenerService extends WearableListenerService implements
 
     public void toastcard(final String tostcardtext) {
         final Context myContext = this; // der Service
-        new Handler(Looper.getMainLooper()).post(new Runnable(){
-            @Override public void run(){
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
                 LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View layout = inflater.inflate(R.layout.toast_card,null);
+                View layout = inflater.inflate(R.layout.toast_card, null);
                 TextView text = (TextView) layout.findViewById(R.id.textView1);
                 text.setText(tostcardtext);
                 final Toast toast = new Toast(myContext);
@@ -132,7 +114,7 @@ public class ListenerService extends WearableListenerService implements
 
                 if (path.equals(WEARABLE_STARTSENSOR)) {
                     if (Sensor.isActive()) {
-                        toastcard( "sensor is active: " + Sensor.isActive());
+                        toastcard("sensor is active: " + Sensor.isActive());
                     } else {
                         dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                         int year = dataMap.getInt("year");
@@ -155,7 +137,7 @@ public class ListenerService extends WearableListenerService implements
                     }
                 }
 
-                if (path.equals((WEARABLE_PREFERNCES))){
+                if (path.equals((WEARABLE_PREFERNCES))) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
                     prefs.edit().putString("dex_txid", dataMap.getString("txid")).apply();
@@ -173,7 +155,7 @@ public class ListenerService extends WearableListenerService implements
                             + " CollectionMethod: " + CollectionMethod);
                 }
 
-                if (path.equals((WEARABLE_STOPCOLLECTIONSERVICE))){
+                if (path.equals((WEARABLE_STOPCOLLECTIONSERVICE))) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("StopCollectionService")) {
                         toastcard("ActiveBluetoothDevice forget!");
@@ -197,7 +179,7 @@ public class ListenerService extends WearableListenerService implements
                     }
                 }
 
-                if (path.equals((WEARABLE_STARTCOLLECTIONSERVICE))){
+                if (path.equals((WEARABLE_STARTCOLLECTIONSERVICE))) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("StartCollectionService")) {
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -224,7 +206,7 @@ public class ListenerService extends WearableListenerService implements
                     }
                 }
 
-                if (path.equals((WEARABLE_CALIBRATION))){
+                if (path.equals((WEARABLE_CALIBRATION))) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("startcalibration")) {
                         double calValue = Double.parseDouble(dataMap.getString("calibration", ""));
@@ -238,7 +220,7 @@ public class ListenerService extends WearableListenerService implements
                     }
                 }
 
-                if (path.equals((WEARABLE_DOUBLECALIBRATION))){
+                if (path.equals((WEARABLE_DOUBLECALIBRATION))) {
                     dataMap = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
                     if (dataMap.containsKey("startdoublecalibration")) {
                         if (BgReading.latestUnCalculated(2).size() < 2) {
@@ -283,6 +265,23 @@ public class ListenerService extends WearableListenerService implements
         }
         if (googleApiClient != null) {
             Wearable.MessageApi.removeListener(googleApiClient, this);
+        }
+    }
+
+    public class DataRequester extends AsyncTask<Void, Void, Void> {
+
+        DataRequester(Context context) {
+            mContext = context;
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (googleApiClient.isConnected()) {
+
+            } else
+                googleApiClient.connect();
+            return null;
         }
     }
 }

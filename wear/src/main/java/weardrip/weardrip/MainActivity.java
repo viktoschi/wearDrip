@@ -94,13 +94,12 @@ public class MainActivity extends WearableActivity {
         rightAxis.setEnabled(false);
 
 
-
     }
 
-    public void gsonstringobject(){
+    public void gsonstringobject() {
         BgReading m1BgReading;
         m1BgReading = BgReading.last();
-        if(m1BgReading != null) {
+        if (m1BgReading != null) {
             String gsonstring = m1BgReading.toS();
             Log.e("gson: ", gsonstring);
         } else {

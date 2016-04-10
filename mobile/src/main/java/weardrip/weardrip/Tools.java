@@ -1,10 +1,10 @@
 package weardrip.weardrip;
 
-        import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.Asset;
 
-        import java.io.File;
-        import java.io.IOException;
-        import java.io.RandomAccessFile;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class Tools {
 

@@ -1,4 +1,5 @@
 <resources>
+
     <style name="AppTheme" parent="android:Theme.Material">
         <item name="android:colorPrimary">@color/pink_200</item>
         <item name="android:colorPrimaryDark">@color/pink_400</item>

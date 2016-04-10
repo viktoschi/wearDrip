@@ -1,7 +1,6 @@
 package weardrip.weardrip;
 
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -10,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,7 +27,6 @@ import com.google.android.gms.wearable.Wearable;
 import com.sleepbot.datetimepicker.time.RadialPickerLayout;
 import com.sleepbot.datetimepicker.time.TimePickerDialog;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import de.jonasrottmann.realmbrowser.RealmBrowser;
@@ -38,12 +37,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         DatePickerDialog.OnDateSetListener,
-        TimePickerDialog.OnTimeSetListener{
+        TimePickerDialog.OnTimeSetListener {
+    public static final String REALM_FILE_NAME = "db10";
     Button startsensor, stopsensor, stopcollectionservice, startcollectionservice;
     EditText calibration, doublecalibration, intercept, slope;
-    int year, month ,day ,hour ,minute;
+    int year, month, day, hour, minute;
     private GoogleApiClient googleApiClient;
-    public static final String REALM_FILE_NAME = "db10";
     private TextView mTxtTitle;
     private BroadcastReceiver receiver;
 
@@ -100,19 +99,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(fragmentStorySelector != null){
-                    WearSpritzerApplication.closeRealm();
-                    WearSpritzerApplication.getRealm();
-                    fragmentStorySelector.readStoriesRealm();
-                }
+                Log.v("BroadcastReceiver: ", "Realm");
             }
         };
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.startsensor:
                 sensorstartonClick();
                 break;
@@ -189,7 +183,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
 
-    public void calibrationonClick(){
+    public void calibrationonClick() {
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
@@ -203,7 +197,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .setCancelable(false)
                 .setPositiveButton("Send to wear",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 calibration.setText(userInput.getText());
                                 PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_calibration").setUrgent();
                                 putDataMapReq.getDataMap().putString("timestamp", Long.toString(System.currentTimeMillis()));
@@ -225,7 +219,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         alertDialog.show();
     }
 
-    public void doublecalibrationonClick(){
+    public void doublecalibrationonClick() {
 
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
@@ -241,7 +235,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .setCancelable(false)
                 .setPositiveButton("Send to wear",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 String val1 = userInput1.getText().toString();
                                 String val2 = userInput2.getText().toString();
                                 String text = val1 + " " + val2;
@@ -267,7 +261,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         alertDialog.show();
     }
 
-    public void slopeonClick(){
+    public void slopeonClick() {
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.slope_dialog, null);
@@ -280,7 +274,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .setCancelable(false)
                 .setPositiveButton("Send to wear",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 slope.setText(userInput.getText());
                                 //googleClient.connect();
                             }
@@ -297,7 +291,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         alertDialog.show();
     }
 
-    public void interceptonClick(){
+    public void interceptonClick() {
         // get prompts.xml view
         LayoutInflater li = LayoutInflater.from(this);
         View promptsView = li.inflate(R.layout.intercept_dialog, null);
@@ -310,7 +304,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .setCancelable(false)
                 .setPositiveButton("Send to wear",
                         new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,int id) {
+                            public void onClick(DialogInterface dialog, int id) {
                                 intercept.setText(userInput.getText());
                                 //googleClient.connect();
                             }
@@ -327,7 +321,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         alertDialog.show();
     }
 
-    public void sensorstartonClick(){
+    public void sensorstartonClick() {
         final Calendar calendar = Calendar.getInstance();
         final DatePickerDialog datePickerDialog = DatePickerDialog.newInstance((DatePickerDialog.OnDateSetListener) this, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         final TimePickerDialog timePickerDialog = TimePickerDialog.newInstance((TimePickerDialog.OnTimeSetListener) this, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false, false);
@@ -348,7 +342,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         notificationManager.notify(notificationId, notification);
         */
     }
-    public void sensorstoponClick(){
+
+    public void sensorstoponClick() {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_stopsensor").setUrgent();
         putDataMapReq.getDataMap().putString("timestamp", Long.toString(System.currentTimeMillis()));
         putDataMapReq.getDataMap().putString("StopSensor", Long.toString(System.currentTimeMillis()));
@@ -358,9 +353,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     @Override
     public void onDateSet(DatePickerDialog datePickerDialog, int intyear, int intmonth, int intday) {
-        year=intyear;
-        month=intmonth+1;
-        day=intday;
+        year = intyear;
+        month = intmonth + 1;
+        day = intday;
     }
 
     @Override
@@ -370,7 +365,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         sendensordata();
     }
 
-    public void sendensordata(){
+    public void sendensordata() {
         new AlertDialog.Builder(this)
                 .setTitle("Sensor Date:")
                 .setMessage("Sensor Started at: " + day + "." + month + "." + year + "  " + hour + ":" + minute)
@@ -397,7 +392,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
 
-    public void startcollectionserviceonClick(){
+    public void startcollectionserviceonClick() {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_startcollectionservice").setUrgent();
         putDataMapReq.getDataMap().putString("timestamp", Long.toString(System.currentTimeMillis()));
         putDataMapReq.getDataMap().putString("StartCollectionService", Long.toString(System.currentTimeMillis()));
@@ -405,7 +400,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         Wearable.DataApi.putDataItem(googleApiClient, putDataReq);
     }
 
-    public void stopcollectionserviceonClick(){
+    public void stopcollectionserviceonClick() {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/wearable_stopcollectionservice").setUrgent();
         putDataMapReq.getDataMap().putString("timestamp", Long.toString(System.currentTimeMillis()));
         putDataMapReq.getDataMap().putString("StopCollectionService", Long.toString(System.currentTimeMillis()));

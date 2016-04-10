@@ -1,10 +1,11 @@
 package weardrip.weardrip;
- import com.google.gson.annotations.Expose;
- import com.google.gson.annotations.SerializedName;
 
- import io.realm.RealmObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
-public class BGdata extends RealmObject{
+import io.realm.RealmObject;
+
+public class BGdata extends RealmObject {
 
     @SerializedName("a")
     @Expose
@@ -59,306 +60,238 @@ public class BGdata extends RealmObject{
     private String uuid;
 
     /**
-     *
-     * @return
-     * The a
+     * @return The a
      */
     public Double getA() {
         return a;
     }
 
     /**
-     *
-     * @param a
-     * The a
+     * @param a The a
      */
     public void setA(Double a) {
         this.a = a;
     }
 
     /**
-     *
-     * @return
-     * The ageAdjustedRawValue
+     * @return The ageAdjustedRawValue
      */
     public Double getAgeAdjustedRawValue() {
         return ageAdjustedRawValue;
     }
 
     /**
-     *
-     * @param ageAdjustedRawValue
-     * The age_adjusted_raw_value
+     * @param ageAdjustedRawValue The age_adjusted_raw_value
      */
     public void setAgeAdjustedRawValue(Double ageAdjustedRawValue) {
         this.ageAdjustedRawValue = ageAdjustedRawValue;
     }
 
     /**
-     *
-     * @return
-     * The b
+     * @return The b
      */
     public Double getB() {
         return b;
     }
 
     /**
-     *
-     * @param b
-     * The b
+     * @param b The b
      */
     public void setB(Double b) {
         this.b = b;
     }
 
     /**
-     *
-     * @return
-     * The c
+     * @return The c
      */
     public Double getC() {
         return c;
     }
 
     /**
-     *
-     * @param c
-     * The c
+     * @param c The c
      */
     public void setC(Double c) {
         this.c = c;
     }
 
     /**
-     *
-     * @return
-     * The calculatedValue
+     * @return The calculatedValue
      */
     public Double getCalculatedValue() {
         return calculatedValue;
     }
 
     /**
-     *
-     * @param calculatedValue
-     * The calculated_value
+     * @param calculatedValue The calculated_value
      */
     public void setCalculatedValue(Double calculatedValue) {
         this.calculatedValue = calculatedValue;
     }
 
     /**
-     *
-     * @return
-     * The calculatedValueSlope
+     * @return The calculatedValueSlope
      */
     public Double getCalculatedValueSlope() {
         return calculatedValueSlope;
     }
 
     /**
-     *
-     * @param calculatedValueSlope
-     * The calculated_value_slope
+     * @param calculatedValueSlope The calculated_value_slope
      */
     public void setCalculatedValueSlope(Double calculatedValueSlope) {
         this.calculatedValueSlope = calculatedValueSlope;
     }
 
     /**
-     *
-     * @return
-     * The calibrationFlag
+     * @return The calibrationFlag
      */
     public Boolean getCalibrationFlag() {
         return calibrationFlag;
     }
 
     /**
-     *
-     * @param calibrationFlag
-     * The calibration_flag
+     * @param calibrationFlag The calibration_flag
      */
     public void setCalibrationFlag(Boolean calibrationFlag) {
         this.calibrationFlag = calibrationFlag;
     }
 
     /**
-     *
-     * @return
-     * The calibrationUuid
+     * @return The calibrationUuid
      */
     public String getCalibrationUuid() {
         return calibrationUuid;
     }
 
     /**
-     *
-     * @param calibrationUuid
-     * The calibration_uuid
+     * @param calibrationUuid The calibration_uuid
      */
     public void setCalibrationUuid(String calibrationUuid) {
         this.calibrationUuid = calibrationUuid;
     }
 
     /**
-     *
-     * @return
-     * The filteredData
+     * @return The filteredData
      */
     public Double getFilteredData() {
         return filteredData;
     }
 
     /**
-     *
-     * @param filteredData
-     * The filtered_data
+     * @param filteredData The filtered_data
      */
     public void setFilteredData(Double filteredData) {
         this.filteredData = filteredData;
     }
 
     /**
-     *
-     * @return
-     * The ra
+     * @return The ra
      */
     public Double getRa() {
         return ra;
     }
 
     /**
-     *
-     * @param ra
-     * The ra
+     * @param ra The ra
      */
     public void setRa(Double ra) {
         this.ra = ra;
     }
 
     /**
-     *
-     * @return
-     * The rawData
+     * @return The rawData
      */
     public Double getRawData() {
         return rawData;
     }
 
     /**
-     *
-     * @param rawData
-     * The raw_data
+     * @param rawData The raw_data
      */
     public void setRawData(Double rawData) {
         this.rawData = rawData;
     }
 
     /**
-     *
-     * @return
-     * The rb
+     * @return The rb
      */
     public Double getRb() {
         return rb;
     }
 
     /**
-     *
-     * @param rb
-     * The rb
+     * @param rb The rb
      */
     public void setRb(Double rb) {
         this.rb = rb;
     }
 
     /**
-     *
-     * @return
-     * The rc
+     * @return The rc
      */
     public Double getRc() {
         return rc;
     }
 
     /**
-     *
-     * @param rc
-     * The rc
+     * @param rc The rc
      */
     public void setRc(Double rc) {
         this.rc = rc;
     }
 
     /**
-     *
-     * @return
-     * The sensorUuid
+     * @return The sensorUuid
      */
     public String getSensorUuid() {
         return sensorUuid;
     }
 
     /**
-     *
-     * @param sensorUuid
-     * The sensor_uuid
+     * @param sensorUuid The sensor_uuid
      */
     public void setSensorUuid(String sensorUuid) {
         this.sensorUuid = sensorUuid;
     }
 
     /**
-     *
-     * @return
-     * The timeSinceSensorStarted
+     * @return The timeSinceSensorStarted
      */
     public Double getTimeSinceSensorStarted() {
         return timeSinceSensorStarted;
     }
 
     /**
-     *
-     * @param timeSinceSensorStarted
-     * The time_since_sensor_started
+     * @param timeSinceSensorStarted The time_since_sensor_started
      */
     public void setTimeSinceSensorStarted(Double timeSinceSensorStarted) {
         this.timeSinceSensorStarted = timeSinceSensorStarted;
     }
 
     /**
-     *
-     * @return
-     * The timestamp
+     * @return The timestamp
      */
     public double getTimestamp() {
         return timestamp;
     }
 
     /**
-     *
-     * @param timestamp
-     * The timestamp
+     * @param timestamp The timestamp
      */
     public void setTimestamp(double timestamp) {
         this.timestamp = timestamp;
     }
 
     /**
-     *
-     * @return
-     * The uuid
+     * @return The uuid
      */
     public String getUuid() {
         return uuid;
     }
 
     /**
-     *
-     * @param uuid
-     * The uuid
+     * @param uuid The uuid
      */
     public void setUuid(String uuid) {
         this.uuid = uuid;

@@ -99,7 +99,7 @@ public class SerialInputOutputManager implements Runnable {
     /**
      * Continuously services the read and write buffers until {@link #stop()} is
      * called, or until a driver exception is raised.
-     * <p>
+     * <p/>
      * NOTE(mikey): Uses inefficient read/write-with-timeout.
      * TODO(mikey): Read asynchronously with {@link UsbRequest#queue(ByteBuffer, int)}
      */

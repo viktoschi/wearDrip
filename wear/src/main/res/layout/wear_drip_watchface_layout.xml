@@ -6,48 +6,48 @@
 
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_gravity="bottom|center">
+            android:layout_gravity="bottom|center"
+            android:orientation="horizontal">
 
             <Space
                 android:layout_width="35dp"
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/delta"
                 android:layout_width="60dp"
                 android:layout_height="match_parent"
-                android:text="---"
-                android:id="@+id/delta"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textSize="40sp"
-                android:layout_row="0"
                 android:layout_column="0"
-                android:layout_gravity="bottom|center" />
+                android:layout_gravity="bottom|center"
+                android:layout_row="0"
+                android:text="---"
+                android:textColor="#ffffff"
+                android:textSize="40sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="10px"
                 android:layout_height="match_parent" />
 
             <TextView
-                android:layout_width="60dp"
-
-                android:layout_height="match_parent"
-                android:text="---"
                 android:id="@+id/sgv"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textSize="40sp"
-                android:layout_row="0"
+
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
                 android:layout_column="1"
-                android:layout_gravity="bottom|center" />
+                android:layout_gravity="bottom|center"
+                android:layout_row="0"
+                android:text="---"
+                android:textColor="#ffffff"
+                android:textSize="40sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="30px"
@@ -55,58 +55,58 @@
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="200dp"
             android:layout_height="85dp"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:orientation="horizontal">
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_row="0"
                 android:layout_column="0"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:layout_row="0" />
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="-15dp">
+            android:layout_marginTop="-15dp"
+            android:orientation="horizontal">
 
             <Space
                 android:layout_width="20dp"
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/watch_time"
                 android:layout_width="110dp"
                 android:layout_height="match_parent"
-                android:text="12:00"
-                android:id="@+id/watch_time"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textSize="40sp"
-                android:layout_row="1"
                 android:layout_column="0"
-                android:layout_gravity="top|center_horizontal" />
+                android:layout_gravity="top|center_horizontal"
+                android:layout_row="1"
+                android:text="12:00"
+                android:textColor="#ffffff"
+                android:textSize="40sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="10px"
                 android:layout_height="match_parent" />
 
             <TextView
+                android:id="@+id/timestamp"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
-                android:text="-- '"
-                android:id="@+id/timestamp"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:textSize="40sp"
-                android:layout_row="1"
                 android:layout_column="1"
-                android:layout_gravity="top|center_horizontal" />
+                android:layout_gravity="top|center_horizontal"
+                android:layout_row="1"
+                android:text="-- '"
+                android:textColor="#ffffff"
+                android:textSize="40sp"
+                android:textStyle="bold" />
 
             <Space
                 android:layout_width="20px"
@@ -115,7 +115,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
 
 
 </RelativeLayout>

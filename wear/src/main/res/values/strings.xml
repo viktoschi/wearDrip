@@ -11,11 +11,11 @@
     <string name="chart_cubic__hide">Draw not as cubic Chart</string>
 
     <string-array name="chart_timeframe">
-            <item>1 hour</item>
-            <item>2 hours</item>
-            <item>3 hours</item>
-            <item>4 hours</item>
-            <item>5 hours</item>
+        <item>1 hour</item>
+        <item>2 hours</item>
+        <item>3 hours</item>
+        <item>4 hours</item>
+        <item>5 hours</item>
     </string-array>
 
     <string-array name="chart_timeframe_values">
