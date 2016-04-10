@@ -38,13 +38,15 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         GoogleApiClient.OnConnectionFailedListener,
         DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener {
-    public static final String REALM_FILE_NAME = "db10";
+    public static final String REALM_FILE_NAME = "default.realm";
     Button startsensor, stopsensor, stopcollectionservice, startcollectionservice;
     EditText calibration, doublecalibration, intercept, slope;
     int year, month, day, hour, minute;
     private GoogleApiClient googleApiClient;
     private TextView mTxtTitle;
     private BroadcastReceiver receiver;
+    private static Realm realm;
+    private static Context context;
 
 
     @Override
@@ -94,12 +96,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         updateTitle();
 
+        realm = Realm.getInstance(this);
+        context = this;
         RealmBrowser.showRealmFilesNotification(this);
 
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.v("BroadcastReceiver: ", "Realm");
+                closeRealm();
+                getRealm();
+                updateTitle();
             }
         };
     }
@@ -182,6 +189,24 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         RealmBrowser.startRealmModelsActivity(this, REALM_FILE_NAME);
     }
 
+    public static Realm getRealm() {
+        if(realm == null){
+            realm = Realm.getInstance(context);
+        }
+        try {
+            realm.refresh();
+        } catch (Exception e) {
+            //Realm was closed earlier
+            realm = Realm.getInstance(context);
+        }
+        return realm;
+    }
+
+    public static void closeRealm(){
+        if(realm != null){
+            realm.close();
+        }
+    }
 
     public void calibrationonClick() {
 
@@ -413,6 +438,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     protected void onStart() {
         super.onStart();
         googleApiClient.connect();
+        IntentFilter filter = new IntentFilter(Tools.DATA_STORY_CHANGED);
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -420,18 +447,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (googleApiClient != null && googleApiClient.isConnected()) {
             googleApiClient.disconnect();
         }
+        closeRealm();
+        unregisterReceiver(receiver);
         super.onStop();
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter filter = new IntentFilter(Tools.DATA_STORY_CHANGED);
-        registerReceiver(receiver, filter);
     }
 
 
