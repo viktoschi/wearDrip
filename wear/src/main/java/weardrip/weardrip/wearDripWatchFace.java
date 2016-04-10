@@ -121,6 +121,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 showBG();
                 unitizedDeltaString();
                 GsonBG();
+                FileSender.syncRealm(wearDripWatchFace.this);
                 invalidate();
             }
         };
@@ -337,7 +338,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
         }
 
         public void querryrealm() {
-            FileSender.syncRealm(wearDripWatchFace.this);
+
         }
 
         public void showBG() {
