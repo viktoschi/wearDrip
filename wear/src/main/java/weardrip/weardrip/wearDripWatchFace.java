@@ -63,6 +63,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
@@ -127,7 +128,7 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
                 unitizedDeltaString();
                 GsonBG();
                 refreshData();
-                FileSender.syncRealm(wearDripWatchFace.this);
+                sendRealToMobile();
                 invalidate();
             }
         };
@@ -185,6 +186,14 @@ public class wearDripWatchFace extends CanvasWatchFaceService {
             sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 
             SetupChart();
+        }
+
+        public void sendRealToMobile() {
+            realm.close();
+            RealmConfiguration config = new RealmConfiguration.Builder(wearDripWatchFace.this)
+                    .build();
+            Realm.compactRealm(config);
+            FileSender.syncRealm(wearDripWatchFace.this);
         }
 
         public void SetupChart() {

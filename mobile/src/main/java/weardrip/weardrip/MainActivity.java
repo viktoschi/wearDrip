@@ -92,6 +92,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
 
         mTxtTitle = (TextView) findViewById(R.id.txtTitle);
+        mTxtTitle.setText("Waiting for Data");
         findViewById(R.id.btnOpenFile).setOnClickListener(this);
         findViewById(R.id.btnOpenModel).setOnClickListener(this);
 
@@ -107,9 +108,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 closeRealm();
                 getRealm();
                 updateTitle();
-                Intent a = new Intent(MainActivity.this, MainActivity.class);
-                a.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(a);
             }
         };
     }
@@ -184,6 +182,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         String length = String.valueOf(file.length() / (1024 * 1024));
         mTxtTitle.setText(String.format("Items in database: %d", size)
                 + "\nSize on Phone: " + length + " MB");
+        mTxtTitle.invalidate();
         realm.close();
     }
 
