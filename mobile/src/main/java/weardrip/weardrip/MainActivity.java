@@ -3,6 +3,7 @@ package weardrip.weardrip;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -97,7 +98,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         findViewById(R.id.btnOpenModel).setOnClickListener(this);
 
         updateTitle();
-
         realm = Realm.getInstance(this);
         context = this;
         RealmBrowser.showRealmFilesNotification(this);
@@ -178,12 +178,19 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 .build();
         Realm realm = Realm.getInstance(config);
         int size = realm.allObjects(BGdata.class).size();
-        File file = new File("/data/data/weardrip/weardrip/files/default.realm");
-        String length = String.valueOf(file.length() / (1024 * 1024));
-        mTxtTitle.setText(String.format("Items in database: %d", size)
-                + "\nSize on Phone: " + length + " MB");
-        mTxtTitle.invalidate();
         realm.close();
+
+        File writableFolder = MainActivity.this.getFilesDir();
+        File realmFile = new File(writableFolder, Realm.DEFAULT_REALM_NAME);
+        String byts = String.valueOf(realmFile.length());
+        String kb = String.valueOf(realmFile.length() / 1024);
+        String mb = String.valueOf(realmFile.length() / 1024 / 1024);
+
+        mTxtTitle.setText(String.format("Items in database: %d", size)
+                + "\nSize on Phone: " + byts + " bytes"
+                + "\nSize on Phone: " + kb + " KB"
+                + "\nSize on Phone: " + mb + " MB");
+        mTxtTitle.invalidate();
     }
 
     private void startRealmFilesActivity() {
